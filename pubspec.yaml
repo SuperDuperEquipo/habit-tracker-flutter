@@ -1,0 +1,26 @@
+name: rachas
+description: Rachas, app de hábitos con rachas y comodines para estudiantes universitarios.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  provider: ^6.1.5
+  dio: ^5.9.0
+  flutter_secure_storage: ^11.0.0
+  flutter_local_notifications: ^22.3.0
+  flutter_timezone: ^5.0.1
+  timezone: ^0.11.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
