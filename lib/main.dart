@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rachas/app/app.dart';
+import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/network/api_client.dart';
 import 'package:rachas/features/habits/api_habit_repository.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
@@ -29,12 +30,16 @@ Future<void> main() async {
         )
       : InMemoryHabitRepository();
 
+  // Si hay sesión guardada, se abre directo en Mis hábitos.
+  final hasSession = await tokenStorage.hasSession();
+
   runApp(
     RachasApp(
       apiClient: apiClient,
       authService: authService,
       habitRepository: habitRepository,
       notifications: notifications,
+      initialRoute: hasSession ? AppRoutes.home : AppRoutes.login,
     ),
   );
 }
