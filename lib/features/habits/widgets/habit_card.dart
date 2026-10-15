@@ -3,7 +3,7 @@ import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_icons.dart';
 import 'package:rachas/features/habits/streak_logic.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 
 class HabitCard extends StatelessWidget {
   const HabitCard({
@@ -105,7 +105,8 @@ class _HabitIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = Color(habit.colorValue);
-    final isDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+    final isDark =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
 
     return Container(
       width: 44,
@@ -113,9 +114,7 @@ class _HabitIcon extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: AppTheme.slateBlue.withValues(alpha: 0.25),
-        ),
+        border: Border.all(color: AppTheme.slateBlue.withValues(alpha: 0.25)),
       ),
       child: Icon(
         habitIcon(habit.iconKey),
@@ -277,9 +276,7 @@ class _CheckButtonState extends State<_CheckButton>
                   boxShadow: [
                     if (_glow.isAnimating)
                       BoxShadow(
-                        color: AppTheme.azalea.withValues(
-                          alpha: 0.7 * (1 - t),
-                        ),
+                        color: AppTheme.azalea.withValues(alpha: 0.7 * (1 - t)),
                         spreadRadius: 12 * t,
                       ),
                   ],
