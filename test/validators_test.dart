@@ -61,4 +61,23 @@ void main() {
       );
     });
   });
+  group('Validators.personName', () {
+    test('acepta nombres válidos', () {
+      expect(Validators.personName('Ana'), isNull);
+      expect(Validators.personName('  Tiffany Meléndez  '), isNull);
+    });
+
+    test('rechaza vacío o nulo', () {
+      expect(Validators.personName(null), AppStrings.nameRequired);
+      expect(Validators.personName('   '), AppStrings.nameRequired);
+    });
+
+    test('rechaza un solo carácter', () {
+      expect(Validators.personName('A'), AppStrings.nameTooShort);
+    });
+
+    test('rechaza más de 50 caracteres', () {
+      expect(Validators.personName('a' * 51), AppStrings.nameTooLong);
+    });
+  });
 }
