@@ -31,4 +31,13 @@ abstract final class Validators {
     if (text != password) return AppStrings.passwordsDoNotMatch;
     return null;
   }
+
+  static const int maxPersonNameLength = 50;
+  static String? personName(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return AppStrings.nameRequired;
+    if (text.length < 2) return AppStrings.nameTooShort;
+    if (text.length > maxPersonNameLength) return AppStrings.nameTooLong;
+    return null;
+  }
 }

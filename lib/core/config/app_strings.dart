@@ -41,6 +41,11 @@ abstract final class AppStrings {
   static const String hidePassword = 'Ocultar contraseña';
   static const String signOut = 'Cerrar sesión';
 
+  static const String nameLabel = 'Nombre';
+  static const String nameRequired = 'Escribe tu nombre';
+  static const String nameTooShort = 'El nombre debe tener al menos 2 letras';
+  static const String nameTooLong = 'El nombre es demasiado largo';
+
   static const String reminderChannelName = 'Recordatorios de hábitos';
   static const String reminderChannelDescription =
       'Avisos diarios para completar tus hábitos';

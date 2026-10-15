@@ -10,4 +10,7 @@ abstract final class ApiEndpoints {
 
   static String habit(String uid, String habitId) =>
       '/users/$uid/habits/$habitId.json';
+
+  static const String updateProfile =
+      'https://identitytoolkit.googleapis.com/v1/accounts:update';
 }
