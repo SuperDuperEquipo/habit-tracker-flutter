@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class AppTheme {
   // Paleta de colores definida por el equipo
   static const Color navy = Color(0xFF2F4058);
+  static const Color slateBlue = Color(0xFF5F7F99);
   static const Color skyBlue = Color(0xFFC8D9E6);
   static const Color palePink = Color(0xFFFFE1E6);
   static const Color azalea = Color(0xFFF7C9D4);
@@ -17,7 +18,7 @@ class AppTheme {
       fontFamily: 'Plus Jakarta Sans',
       colorScheme: ColorScheme.light(
         primary: navy,
-        secondary: darkPink,
+        secondary: slateBlue,
         surface: beige,
         error: darkPink,
         onPrimary: Colors.white,
