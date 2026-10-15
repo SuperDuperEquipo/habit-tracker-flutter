@@ -18,6 +18,9 @@ class _FakeAuthService extends AuthService {
 
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<String?> readDisplayName() async => null;
 }
 
 Widget _buildApp({String initialRoute = AppRoutes.login}) {
