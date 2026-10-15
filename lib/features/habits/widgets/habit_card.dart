@@ -3,7 +3,7 @@ import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_icons.dart';
 import 'package:rachas/features/habits/streak_logic.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 
 class HabitCard extends StatelessWidget {
   const HabitCard({

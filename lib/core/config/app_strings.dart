@@ -45,7 +45,7 @@ abstract final class AppStrings {
   static const String nameRequired = 'Escribe tu nombre';
   static const String nameTooShort = 'El nombre debe tener al menos 2 letras';
   static const String nameTooLong = 'El nombre es demasiado largo';
-  static const String greeting = 'Hola, ';
+  static String profileGreeting(String name) => 'Hola, $name';
 
   static const String reminderChannelName = 'Recordatorios de hábitos';
   static const String reminderChannelDescription =
