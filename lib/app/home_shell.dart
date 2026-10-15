@@ -81,7 +81,7 @@ class _ProfileTabState extends State<_ProfileTab> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
-                    '${AppStrings.greeting}$name',
+                    AppStrings.profileGreeting(name),
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 );
