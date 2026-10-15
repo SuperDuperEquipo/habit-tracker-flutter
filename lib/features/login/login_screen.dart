@@ -16,9 +16,11 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   // La llave del formulario vive en el State, nunca dentro de build().
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   final _confirmFocus = FocusNode();
 
@@ -31,9 +33,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
+    _emailFocus.dispose();
     _passwordFocus.dispose();
     _confirmFocus.dispose();
     super.dispose();
@@ -47,6 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isSignUp = !_isSignUp;
       _errorMessage = null;
+      _nameController.clear();
       _confirmController.clear();
     });
   }
@@ -73,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       if (_isSignUp) {
-        await auth.signUp(email, password);
+        await auth.signUp(email, password, name: _nameController.text);
       } else {
         await auth.signIn(email, password);
       }
@@ -128,8 +133,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const _LogoHeader(),
                     const SizedBox(height: 32),
+                    if (_isSignUp) ...[
+                      TextFormField(
+                        controller: _nameController,
+                        textCapitalization: TextCapitalization.words,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (_) => _emailFocus.requestFocus(),
+                        onChanged: (_) => _clearError(),
+                        validator: Validators.personName,
+                        decoration: _decoration(AppStrings.nameLabel),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     TextFormField(
                       controller: _emailController,
+                      focusNode: _emailFocus,
                       keyboardType: TextInputType.emailAddress,
                       textInputAction: TextInputAction.next,
                       onFieldSubmitted: (_) => _passwordFocus.requestFocus(),

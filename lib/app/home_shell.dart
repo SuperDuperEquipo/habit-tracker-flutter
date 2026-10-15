@@ -42,10 +42,23 @@ class _HomeShellState extends State<HomeShell> {
   }
 }
 
-class _ProfileTab extends StatelessWidget {
+class _ProfileTab extends StatefulWidget {
   const _ProfileTab();
 
-  Future<void> _signOut(BuildContext context) async {
+  @override
+  State<_ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends State<_ProfileTab> {
+  late final Future<String?> _nameFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameFuture = context.read<AuthService>().readDisplayName();
+  }
+
+  Future<void> _signOut() async {
     // Se guarda el navigator antes del await para no usar el context después.
     final navigator = Navigator.of(context);
     await context.read<AuthService>().signOut();
@@ -60,10 +73,24 @@ class _ProfileTab extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            FutureBuilder<String?>(
+              future: _nameFuture,
+              builder: (context, snapshot) {
+                final name = snapshot.data;
+                if (name == null || name.isEmpty) return const SizedBox();
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    '${AppStrings.greeting}$name',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                );
+              },
+            ),
             const Text(AppStrings.featureUnavailable),
             const SizedBox(height: 24),
             OutlinedButton.icon(
-              onPressed: () => _signOut(context),
+              onPressed: _signOut,
               icon: const Icon(Icons.logout),
               label: const Text(AppStrings.signOut),
             ),
