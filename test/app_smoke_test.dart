@@ -8,9 +8,12 @@ import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/login/token_storage.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
 
-// AuthService de mentira: no llama a Firebase.
+// AuthService de mentira: el inicio de sesión siempre sale bien.
 class _FakeAuthService extends AuthService {
   _FakeAuthService() : super(tokenStorage: TokenStorage());
+
+  @override
+  Future<void> signIn(String email, String password) async {}
 }
 
 void main() {
@@ -26,6 +29,11 @@ void main() {
       ),
     );
 
+    await tester.enterText(
+      find.byType(TextFormField).at(0),
+      'tiffany@correo.com',
+    );
+    await tester.enterText(find.byType(TextFormField).at(1), '123456');
     await tester.tap(find.byType(FilledButton));
     await tester.pumpAndSettle();
     expect(find.byType(NavigationBar), findsOneWidget);

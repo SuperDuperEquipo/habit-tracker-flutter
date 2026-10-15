@@ -28,6 +28,18 @@ abstract final class AppStrings {
   static const String serverError = 'Error del servidor. Inténtalo más tarde';
   static const String cancelled = 'Solicitud cancelada';
 
+  static const String loginTagline = 'Construye tu racha, un día a la vez';
+  static const String emailLabel = 'Correo';
+  static const String passwordLabel = 'Contraseña';
+  static const String confirmPasswordLabel = 'Confirmar contraseña';
+  static const String signIn = 'Iniciar sesión';
+  static const String createAccount = 'Crear cuenta';
+  static const String noAccountPrompt = '¿No tienes cuenta?';
+  static const String haveAccountPrompt = '¿Ya tienes cuenta?';
+  static const String forgotPassword = '¿Olvidaste tu contraseña?';
+  static const String showPassword = 'Mostrar contraseña';
+  static const String hidePassword = 'Ocultar contraseña';
+
   static const String reminderChannelName = 'Recordatorios de hábitos';
   static const String reminderChannelDescription =
       'Avisos diarios para completar tus hábitos';
