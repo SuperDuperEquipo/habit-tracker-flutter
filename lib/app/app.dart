@@ -15,12 +15,14 @@ class RachasApp extends StatelessWidget {
     required this.authService,
     required this.habitRepository,
     required this.notifications,
+    this.initialRoute = AppRoutes.login,
   });
 
   final ApiClient apiClient;
   final AuthService authService;
   final HabitRepository habitRepository;
   final NotificationService notifications;
+  final String initialRoute;
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +37,7 @@ class RachasApp extends StatelessWidget {
         title: AppStrings.appName,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(),
-        initialRoute: AppRoutes.login,
+        initialRoute: initialRoute,
         onGenerateRoute: AppRouter.onGenerateRoute,
       ),
     );
