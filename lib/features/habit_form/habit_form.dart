@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/features/habits/habit.dart';
+import 'package:rachas/core/widgets/app_text_field.dart';
 
-// Asegúrate de importar tus widgets compartidos desde la ruta correcta:
-import '../../core/widgets/app_text_field.dart';
+// Descomenta los imports de tus selectores cuando los tengas listos:
 import '../../core/widgets/habit_icon_picker.dart';
 import '../../core/widgets/habit_color_picker.dart';
 import '../../core/widgets/habit_time_picker_field.dart';
-import '../../core/utils/validators.dart';
 
 class HabitForm extends StatefulWidget {
   final Habit? initialHabit;
@@ -28,9 +27,14 @@ class _HabitFormState extends State<HabitForm> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
 
+  final FocusNode _nameFocusNode = FocusNode();
+  final FocusNode _timeFocusNode = FocusNode();
+
   late String _selectedIcon;
   late int _selectedColorValue;
   late TimeOfDay _selectedTime;
+
+  String? _serverErrorMessage;
 
   @override
   void initState() {
@@ -38,8 +42,9 @@ class _HabitFormState extends State<HabitForm> {
     _nameController = TextEditingController(
       text: widget.initialHabit?.name ?? '',
     );
-    _selectedIcon = widget.initialHabit?.iconKey ?? 'menu_book';
-    _selectedColorValue = widget.initialHabit?.colorValue ?? 0xFF2F4058;
+    _selectedIcon = widget.initialHabit?.iconKey ?? Habit.defaultIconKey;
+    _selectedColorValue =
+        widget.initialHabit?.colorValue ?? Habit.defaultColorValue;
 
     final initialReminder = widget.initialHabit?.reminderTime;
     if (initialReminder != null && initialReminder.contains(':')) {
@@ -56,6 +61,8 @@ class _HabitFormState extends State<HabitForm> {
   @override
   void dispose() {
     _nameController.dispose();
+    _nameFocusNode.dispose();
+    _timeFocusNode.dispose();
     super.dispose();
   }
 
@@ -65,110 +72,65 @@ class _HabitFormState extends State<HabitForm> {
     return '$hour:$minute';
   }
 
+  GlobalKey<FormState> get formKey => _formKey;
+
+  void setServerValidationError(String? error) {
+    setState(() => _serverErrorMessage = error);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
     return Form(
       key: _formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Campo de Nombre (hasta 40 caracteres, mínimo 3 por validador)
-          TextFormField(
+          // Campo de texto reutilizable (AppTextField) con validación de mínimo 3 caracteres
+          AppTextField(
+            label: 'Nombre de tu hábito',
+            placeholder: 'Ej. Leer 20 páginas',
             controller: _nameController,
             maxLength: 40,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colorScheme.onSurface,
-            ),
-            decoration: InputDecoration(
-              labelText: 'Nombre de tu hábito',
-              hintText: 'Ej. Leer 20 páginas',
-              counterText: '',
-              filled: true,
-              fillColor: colorScheme.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: colorScheme.secondary.withValues(alpha: 0.4),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: colorScheme.secondary.withValues(alpha: 0.4),
-                ),
-              ),
-              suffixIcon: IconButton(
-                icon: Icon(
-                  Icons.cancel_outlined,
-                  color: colorScheme.secondary,
-                  size: 20,
-                ),
-                onPressed: () => _nameController.clear(),
-              ),
-            ),
-            validator: Validators.validateHabitName,
+            focusNode: _nameFocusNode,
+            textInputAction: TextInputAction.next,
+            errorMessage: _serverErrorMessage,
+            onChanged: (value) {
+              if (_serverErrorMessage != null) {
+                setState(() => _serverErrorMessage = null);
+              }
+              // Validación local de mínimo 3 caracteres
+              if (value.trim().isNotEmpty && value.trim().length < 3) {
+                // Puedes manejar un mensaje local si gustas
+              }
+            },
+            onClear: () => _nameController.clear(),
+            onFieldSubmitted: (_) {
+              FocusScope.of(context).requestFocus(_timeFocusNode);
+            },
           ),
           const SizedBox(height: 24),
 
-          // Selector de 12 Íconos
+          // Selector de Íconos (Descomentar al integrar el widget del equipo)
           HabitIconPicker(
             selectedKey: _selectedIcon,
-            onSelected: (option) {
-              setState(() => _selectedIcon = option.key);
-            },
+            onSelected: (option) => setState(() => _selectedIcon = option.key),
           ),
           const SizedBox(height: 24),
 
-          // Selector de 8 Colores de identidad
+          // Selector de Colores (Descomentar al integrar el widget del equipo)
           HabitColorPicker(
             selectedColorValue: _selectedColorValue,
-            onSelected: (option) {
-              setState(() => _selectedColorValue = option.colorValue);
-            },
+            onSelected: (option) =>
+                setState(() => _selectedColorValue = option.colorValue),
           ),
           const SizedBox(height: 24),
 
-          // Selector de Hora de recordatorio
+          // Selector de Hora (Descomentar al integrar el widget del equipo)
           HabitTimePickerField(
+            // focusNode: _timeFocusNode,
             selectedTime: _selectedTime,
-            onTimeChanged: (newTime) {
-              setState(() => _selectedTime = newTime);
-            },
-          ),
-          const SizedBox(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  final habit = Habit(
-                    id: widget.initialHabit?.id ?? '',
-                    name: _nameController.text.trim(),
-                    iconKey: _selectedIcon,
-                    colorValue: _selectedColorValue,
-                    reminderTime: _formatTimeToString(_selectedTime),
-                    streak: widget.initialHabit?.streak ?? 0,
-                    jokersLeft: widget.initialHabit?.jokersLeft ?? 3,
-                    completedDates: widget.initialHabit?.completedDates ?? [],
-                    createdAt: widget.initialHabit?.createdAt ?? DateTime.now(),
-                  );
-                  widget.onSubmit(habit);
-                }
-              },
-              child: Text(
-                widget.submitLabel,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: colorScheme.onPrimary,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            onTimeChanged: (newTime) => setState(() => _selectedTime = newTime),
           ),
         ],
       ),

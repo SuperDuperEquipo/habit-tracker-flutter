@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/primary_button.dart';
 
 class OfflineState extends StatelessWidget {

@@ -4,7 +4,7 @@ import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/state/view_state.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
@@ -57,11 +57,7 @@ class _HabitsViewState extends State<_HabitsView> {
   }
 
   Future<void> _openEdit(Habit habit) async {
-    await Navigator.pushNamed(
-      context,
-      AppRoutes.editHabit,
-      arguments: habit,
-    );
+    await Navigator.pushNamed(context, AppRoutes.editHabit, arguments: habit);
     if (mounted) await context.read<HabitsProvider>().refresh();
   }
 
@@ -214,9 +210,7 @@ class _Header extends StatelessWidget {
             ),
             Text(
               AppStrings.navHabits,
-              style: textTheme.bodySmall?.copyWith(
-                color: AppTheme.slateBlue,
-              ),
+              style: textTheme.bodySmall?.copyWith(color: AppTheme.slateBlue),
             ),
           ],
         ),
@@ -228,11 +222,7 @@ class _Header extends StatelessWidget {
             color: AppTheme.navy,
             shape: BoxShape.circle,
           ),
-          child: const Icon(
-            Icons.person,
-            size: 20,
-            color: AppTheme.background,
-          ),
+          child: const Icon(Icons.person, size: 20, color: AppTheme.background),
         ),
       ],
     );
@@ -262,9 +252,7 @@ class _Greeting extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           subtitle,
-          style: textTheme.bodyMedium?.copyWith(
-            color: AppTheme.slateBlue,
-          ),
+          style: textTheme.bodyMedium?.copyWith(color: AppTheme.slateBlue),
         ),
       ],
     );
