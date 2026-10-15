@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
+import 'package:rachas/features/login/auth_service.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -42,11 +45,31 @@ class _HomeShellState extends State<HomeShell> {
 class _ProfileTab extends StatelessWidget {
   const _ProfileTab();
 
+  Future<void> _signOut(BuildContext context) async {
+    // Se guarda el navigator antes del await para no usar el context después.
+    final navigator = Navigator.of(context);
+    await context.read<AuthService>().signOut();
+    navigator.pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.navProfile)),
-      body: const Center(child: Text(AppStrings.featureUnavailable)),
+      body: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(AppStrings.featureUnavailable),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => _signOut(context),
+              icon: const Icon(Icons.logout),
+              label: const Text(AppStrings.signOut),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
