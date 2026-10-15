@@ -12,6 +12,7 @@ import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
 import 'package:rachas/features/habits/widgets/offline_state.dart';
+import 'package:rachas/features/habits/widgets/habits_summary.dart';
 
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key, this.userName});
@@ -127,6 +128,11 @@ class _HabitsViewState extends State<_HabitsView> {
             OfflineState(error: error, onRetry: _retry),
           ],
           ViewData(:final data) => <Widget>[
+            HabitsSummary(
+              completed: provider.completedToday,
+              total: provider.total,
+            ),
+            const SizedBox(height: 16),
             for (final habit in data)
               Padding(
                 padding: const EdgeInsets.only(bottom: 16),
