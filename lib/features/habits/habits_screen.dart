@@ -13,6 +13,7 @@ import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
 import 'package:rachas/features/habits/widgets/offline_state.dart';
 import 'package:rachas/features/habits/widgets/habits_summary.dart';
+import 'package:rachas/features/login/token_storage.dart';
 
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key, this.userName});
@@ -24,7 +25,9 @@ class HabitsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (context) =>
-          HabitsProvider(repository: context.read<HabitRepository>()),
+          HabitsProvider(repository: context.read<HabitRepository>(),
+          readUserName: TokenStorage().readDisplayName,
+        )..loadUserName(),
       child: _HabitsView(userName: userName),
     );
   }
@@ -169,7 +172,7 @@ class _HabitsViewState extends State<_HabitsView> {
                 const _Header(),
                 const SizedBox(height: 16),
                 _Greeting(
-                  name: widget.userName,
+                  name: widget.userName ?? provider.userName,
                   subtitle: hasData
                       ? AppStrings.habitsScheduled(provider.total)
                       : AppStrings.habitsCalmSubtitle,
