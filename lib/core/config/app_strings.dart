@@ -39,6 +39,7 @@ abstract final class AppStrings {
   static const String forgotPassword = '¿Olvidaste tu contraseña?';
   static const String showPassword = 'Mostrar contraseña';
   static const String hidePassword = 'Ocultar contraseña';
+  static const String signOut = 'Cerrar sesión';
 
   static const String reminderChannelName = 'Recordatorios de hábitos';
   static const String reminderChannelDescription =
