@@ -97,6 +97,34 @@ class HabitCard extends StatelessWidget {
   }
 }
 
+class _HabitIcon extends StatelessWidget {
+  const _HabitIcon({required this.habit});
+
+  final Habit habit;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = Color(habit.colorValue);
+    final isDark =
+        ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
+
+    return Container(
+      width: 44,
+      height: 44,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppTheme.slateBlue.withValues(alpha: 0.25)),
+      ),
+      child: Icon(
+        habitIcon(habit.iconKey),
+        size: 22,
+        color: isDark ? Colors.white : AppTheme.navy,
+      ),
+    );
+  }
+}
+
 class _StreakChip extends StatelessWidget {
   const _StreakChip({required this.days});
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/core/widgets/app_text_field.dart';
 
-// Descomenta los imports de tus selectores cuando los tengas listos:
 import '../../core/widgets/habit_icon_picker.dart';
 import '../../core/widgets/habit_color_picker.dart';
 import '../../core/widgets/habit_time_picker_field.dart';
@@ -20,10 +19,11 @@ class HabitForm extends StatefulWidget {
   });
 
   @override
-  State<HabitForm> createState() => _HabitFormState();
+  HabitFormState createState() => HabitFormState(); // Quitamos el guion bajo
 }
 
-class _HabitFormState extends State<HabitForm> {
+class HabitFormState extends State<HabitForm> {
+  // Quitamos el guion bajo
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _nameController;
 
@@ -72,7 +72,13 @@ class _HabitFormState extends State<HabitForm> {
     return '$hour:$minute';
   }
 
-  GlobalKey<FormState> get formKey => _formKey;
+  // Getters públicos para que CreateHabitScreen lea los valores del usuario
+  String get habitName => _nameController.text.trim();
+  String get iconKey => _selectedIcon;
+  int get colorValue => _selectedColorValue;
+  String get reminderTime => _formatTimeToString(_selectedTime);
+
+  bool validate() => _formKey.currentState?.validate() ?? false;
 
   void setServerValidationError(String? error) {
     setState(() => _serverErrorMessage = error);
@@ -86,7 +92,6 @@ class _HabitFormState extends State<HabitForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Campo de texto reutilizable (AppTextField) con validación de mínimo 3 caracteres
           AppTextField(
             label: 'Nombre de tu hábito',
             placeholder: 'Ej. Leer 20 páginas',
@@ -99,10 +104,6 @@ class _HabitFormState extends State<HabitForm> {
               if (_serverErrorMessage != null) {
                 setState(() => _serverErrorMessage = null);
               }
-              // Validación local de mínimo 3 caracteres
-              if (value.trim().isNotEmpty && value.trim().length < 3) {
-                // Puedes manejar un mensaje local si gustas
-              }
             },
             onClear: () => _nameController.clear(),
             onFieldSubmitted: (_) {
@@ -110,25 +111,18 @@ class _HabitFormState extends State<HabitForm> {
             },
           ),
           const SizedBox(height: 24),
-
-          // Selector de Íconos (Descomentar al integrar el widget del equipo)
           HabitIconPicker(
             selectedKey: _selectedIcon,
             onSelected: (option) => setState(() => _selectedIcon = option.key),
           ),
           const SizedBox(height: 24),
-
-          // Selector de Colores (Descomentar al integrar el widget del equipo)
           HabitColorPicker(
             selectedColorValue: _selectedColorValue,
             onSelected: (option) =>
                 setState(() => _selectedColorValue = option.colorValue),
           ),
           const SizedBox(height: 24),
-
-          // Selector de Hora (Descomentar al integrar el widget del equipo)
           HabitTimePickerField(
-            // focusNode: _timeFocusNode,
             selectedTime: _selectedTime,
             onTimeChanged: (newTime) => setState(() => _selectedTime = newTime),
           ),

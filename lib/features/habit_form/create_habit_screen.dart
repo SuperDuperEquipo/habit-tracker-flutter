@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/features/habit_form/habit_form.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/api_habit_repository.dart';
+import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/core/errors/app_exception.dart';
+import 'package:rachas/features/notifications/notification_service.dart';
 
 class CreateHabitScreen extends StatefulWidget {
-  const CreateHabitScreen({super.key, required this.habitRepository});
+  const CreateHabitScreen({
+    super.key,
+    required this.habitRepository,
+    this.notificationService,
+  });
 
-  final ApiHabitRepository habitRepository;
+  final HabitRepository habitRepository;
+  final NotificationService? notificationService;
 
   @override
   State<CreateHabitScreen> createState() => _CreateHabitScreenState();
@@ -16,10 +22,12 @@ class CreateHabitScreen extends StatefulWidget {
 class _CreateHabitScreenState extends State<CreateHabitScreen> {
   bool _isSaving = false;
   String? _fieldErrorMessage;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  final GlobalKey<HabitFormState> _formKey = GlobalKey<HabitFormState>();
 
   Future<void> _handleSave() async {
-    if (!(_formKey.currentState?.validate() ?? false)) {
+    final formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) {
       return;
     }
 
@@ -29,7 +37,13 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
     });
 
     try {
-      final newHabit = Habit.draft(name: 'Nuevo hábito');
+      final newHabit = Habit.draft(
+        name: formState.habitName,
+        iconKey: formState.iconKey,
+        colorValue: formState.colorValue,
+        reminderTime: formState.reminderTime,
+      );
+
       final createdHabit = await widget.habitRepository.create(newHabit);
 
       if (createdHabit.id.isNotEmpty) {
@@ -94,15 +108,10 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Form(
+            HabitForm(
               key: _formKey,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              child: HabitForm(
-                submitLabel: _isSaving
-                    ? 'Guardando hábito...'
-                    : 'Guardar hábito',
-                onSubmit: (_) {},
-              ),
+              submitLabel: _isSaving ? 'Guardando hábito...' : 'Guardar hábito',
+              onSubmit: (_) {},
             ),
             const SizedBox(height: 20),
 

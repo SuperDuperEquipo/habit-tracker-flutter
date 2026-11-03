@@ -8,8 +8,6 @@ import 'package:rachas/features/login/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/features/habits/api_habit_repository.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
-import 'package:rachas/features/login/forgot_password_screen.dart';
-import 'package:rachas/features/habits/habit_detail_screen.dart';
 
 abstract final class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
