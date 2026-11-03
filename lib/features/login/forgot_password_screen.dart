@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/validators.dart';
+import 'package:rachas/core/widgets/app_logo.dart';
 import 'package:rachas/features/login/auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -242,6 +243,10 @@ class _TopBar extends StatelessWidget {
         IconButton.filledTonal(
           tooltip: AppStrings.backToLogin,
           onPressed: onBack,
+          style: IconButton.styleFrom(
+            backgroundColor: theme.colorScheme.surface,
+            foregroundColor: theme.colorScheme.primary,
+          ),
           icon: const Icon(Icons.arrow_back),
         ),
         Expanded(
@@ -329,7 +334,6 @@ class _SuccessCard extends StatelessWidget {
   }
 }
 
-// Logo temporal: es el mismo del login; se reemplaza por el de Stitch.
 class _LogoHeader extends StatelessWidget {
   const _LogoHeader();
 
@@ -338,22 +342,21 @@ class _LogoHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       children: [
-        CircleAvatar(
-          radius: 36,
-          backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(
-            Icons.local_fire_department_rounded,
-            size: 40,
-            color: theme.colorScheme.onPrimaryContainer,
+        const AppLogo(size: 72),
+        const SizedBox(height: 12),
+        Text(
+          AppStrings.appName,
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 16),
-        Text(AppStrings.appName, style: theme.textTheme.headlineMedium),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           AppStrings.loginTagline,
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: theme.colorScheme.secondary,
+          ),
         ),
       ],
     );
