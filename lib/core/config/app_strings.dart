@@ -89,6 +89,8 @@ abstract final class AppStrings {
       'Mantienes un ritmo relajado y constante';
   static const String summaryAllDone = '¡Lo lograste! Hoy cumpliste todo';
 
+  static const String navJournal = 'Diario';
+
   // Mis hábitos
   static String greeting([String? name]) {
     final clean = name?.trim() ?? '';
@@ -202,7 +204,7 @@ abstract final class AppStrings {
   static String deleteDialogBody(String name) =>
       'Se borrará "$name" con su racha e historial. Esta acción no se puede deshacer.';
 
-  // Estadisticas 
+  // Estadisticas
   static const String navStats = 'Estadísticas';
   static const String statsTitle = 'Estadísticas';
   static const String statsWeekRate = 'Cumplimiento de la semana';
@@ -217,5 +219,4 @@ abstract final class AppStrings {
       '$done de $total días completados';
   static String statsConsistentDetail(int percent) =>
       '$percent% de cumplimiento';
-
 }
