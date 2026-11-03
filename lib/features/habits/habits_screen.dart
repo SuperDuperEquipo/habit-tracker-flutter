@@ -1,3 +1,4 @@
+
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -8,30 +9,24 @@ import 'package:rachas/core/state/view_state.dart';
 import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/habits/habits_provider.dart';
-import 'package:rachas/features/habits/streak_logic.dart' show isCompletedOn;
+import 'package:rachas/features/habits/streak_logic.dart'
+    show isCompletedOn;
 import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
-import 'package:rachas/features/habits/widgets/offline_state.dart';
 import 'package:rachas/features/habits/widgets/habits_summary.dart';
-import 'package:rachas/features/login/token_storage.dart';
+import 'package:rachas/features/habits/widgets/offline_state.dart';
 
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key, this.userName});
 
-  /// El saludo no lleva nombre por defecto; acepta uno opcional.
+  /// El saludo acepta un nombre opcional.
   final String? userName;
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => HabitsProvider(
-        repository: context.read<HabitRepository>(),
-        readUserName: TokenStorage().readDisplayName,
-      )..loadUserName(),
-      child: _HabitsView(userName: userName),
-    );
+    // Utiliza el HabitsProvider compartido desde app.dart.
+    return _HabitsView(userName: userName);
   }
 }
 
@@ -50,21 +45,37 @@ class _HabitsViewState extends State<_HabitsView> {
   @override
   void initState() {
     super.initState();
-    _loadFuture = context.read<HabitsProvider>().load();
+
+    final provider = context.read<HabitsProvider>();
+
+    provider.loadUserName();
+    _loadFuture = provider.load();
   }
 
   void _retry() {
-    setState(() => _loadFuture = context.read<HabitsProvider>().load());
+    setState(() {
+      _loadFuture = context.read<HabitsProvider>().load();
+    });
   }
 
   Future<void> _openCreate() async {
     await Navigator.pushNamed(context, AppRoutes.createHabit);
-    if (mounted) await context.read<HabitsProvider>().refresh();
+
+    if (mounted) {
+      await context.read<HabitsProvider>().refresh();
+    }
   }
 
-  Future<void> _openDetail(Habit habit) async {
-    await Navigator.pushNamed(context, AppRoutes.habitDetail, arguments: habit);
-    if (mounted) await context.read<HabitsProvider>().refresh();
+  Future<void> _openEdit(Habit habit) async {
+    await Navigator.pushNamed(
+      context,
+      AppRoutes.editHabit,
+      arguments: habit,
+    );
+
+    if (mounted) {
+      await context.read<HabitsProvider>().refresh();
+    }
   }
 
   Future<void> _toggle(Habit habit) async {
@@ -74,13 +85,19 @@ class _HabitsViewState extends State<_HabitsView> {
     final error = await provider.toggle(habit.id);
     _showError(error);
 
-    if (error == null && !wasCompleted) await _logHabitCompleted();
+    if (error == null && !wasCompleted) {
+      await _logHabitCompleted();
+    }
   }
 
   Future<void> _logHabitCompleted() async {
     try {
-      await FirebaseAnalytics.instance.logEvent(name: 'habit_completed');
-    } catch (_) {}
+      await FirebaseAnalytics.instance.logEvent(
+        name: 'habit_completed',
+      );
+    } catch (_) {
+      // Un fallo de Analytics no debe afectar la operación del hábito.
+    }
   }
 
   Future<void> _useJoker(Habit habit) async {
@@ -92,16 +109,21 @@ class _HabitsViewState extends State<_HabitsView> {
       cancelLabel: AppStrings.cancel,
       icon: Icons.shield,
     );
+
     if (confirmed != true || !mounted) return;
+
     final error = await context.read<HabitsProvider>().useJoker(habit.id);
     _showError(error);
   }
 
   void _showError(AppException? error) {
     if (error == null || !mounted) return;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(error.message)));
+      ..showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
   }
 
   ViewState<List<Habit>> _toViewState(
@@ -111,14 +133,17 @@ class _HabitsViewState extends State<_HabitsView> {
     if (snapshot.connectionState != ConnectionState.done) {
       return const ViewLoading();
     }
+
     if (snapshot.hasError) {
       final error = snapshot.error;
+
       return ViewError(
         error is AppException
             ? error
             : const AppException(AppStrings.unexpectedError),
       );
     }
+
     return habits.isEmpty ? const ViewEmpty() : ViewData(habits);
   }
 
@@ -134,38 +159,42 @@ class _HabitsViewState extends State<_HabitsView> {
 
         final content = switch (state) {
           ViewLoading() => <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(top: 80),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ],
-          ViewEmpty() => <Widget>[EmptyState(onCreate: _openCreate)],
+              const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              ),
+            ],
+          ViewEmpty() => <Widget>[
+              EmptyState(onCreate: _openCreate),
+            ],
           ViewError(:final error) => <Widget>[
-            OfflineState(error: error, onRetry: _retry),
-          ],
-          ViewData() => <Widget>[
-            HabitsSummary(
-              completed: provider.completedToday,
-              total: provider.total,
-            ),
-            const SizedBox(height: 16),
-          ],
+              OfflineState(
+                error: error,
+                onRetry: _retry,
+              ),
+            ],
+          ViewData(:final data) => <Widget>[
+              HabitsSummary(
+                completed: provider.completedToday,
+                total: provider.total,
+              ),
+              const SizedBox(height: 16),
+              for (final habit in data)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: HabitCard(
+                    key: ValueKey(habit.id),
+                    habit: habit,
+                    today: provider.today,
+                    onToggle: () => _toggle(habit),
+                    onUseJoker: () => _useJoker(habit),
+                    onOpen: () => _openEdit(habit),
+                  ),
+                ),
+            ],
         };
-
-        final top = <Widget>[
-          const _Header(),
-          const SizedBox(height: 16),
-          _Greeting(
-            name: widget.userName ?? provider.userName,
-            subtitle: hasData
-                ? AppStrings.habitsScheduled(provider.total)
-                : AppStrings.habitsCalmSubtitle,
-          ),
-          const SizedBox(height: 16),
-          ...content,
-        ];
-
-        final habits = hasData ? provider.habits : const <Habit>[];
 
         return Scaffold(
           floatingActionButton: hasData
@@ -178,26 +207,20 @@ class _HabitsViewState extends State<_HabitsView> {
                 )
               : null,
           body: SafeArea(
-            child: ListView.builder(
+            child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
-
-              itemCount: top.length + habits.length,
-              itemBuilder: (context, index) {
-                if (index < top.length) return top[index];
-
-                final habit = habits[index - top.length];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: HabitCard(
-                    key: ValueKey(habit.id),
-                    habit: habit,
-                    today: provider.today,
-                    onToggle: () => _toggle(habit),
-                    onUseJoker: () => _useJoker(habit),
-                    onOpen: () => _openDetail(habit),
-                  ),
-                );
-              },
+              children: [
+                const _Header(),
+                const SizedBox(height: 16),
+                _Greeting(
+                  name: widget.userName ?? provider.userName,
+                  subtitle: hasData
+                      ? AppStrings.habitsScheduled(provider.total)
+                      : AppStrings.habitsCalmSubtitle,
+                ),
+                const SizedBox(height: 16),
+                ...content,
+              ],
             ),
           ),
         );
@@ -241,7 +264,9 @@ class _Header extends StatelessWidget {
             ),
             Text(
               AppStrings.navHabits,
-              style: textTheme.bodySmall?.copyWith(color: AppTheme.slateBlue),
+              style: textTheme.bodySmall?.copyWith(
+                color: AppTheme.slateBlue,
+              ),
             ),
           ],
         ),
@@ -253,7 +278,11 @@ class _Header extends StatelessWidget {
             color: AppTheme.navy,
             shape: BoxShape.circle,
           ),
-          child: const Icon(Icons.person, size: 20, color: AppTheme.background),
+          child: const Icon(
+            Icons.person,
+            size: 20,
+            color: AppTheme.background,
+          ),
         ),
       ],
     );
@@ -261,7 +290,10 @@ class _Header extends StatelessWidget {
 }
 
 class _Greeting extends StatelessWidget {
-  const _Greeting({required this.name, required this.subtitle});
+  const _Greeting({
+    required this.name,
+    required this.subtitle,
+  });
 
   final String? name;
   final String subtitle;
@@ -283,7 +315,9 @@ class _Greeting extends StatelessWidget {
         const SizedBox(height: 2),
         Text(
           subtitle,
-          style: textTheme.bodyMedium?.copyWith(color: AppTheme.slateBlue),
+          style: textTheme.bodyMedium?.copyWith(
+            color: AppTheme.slateBlue,
+          ),
         ),
       ],
     );

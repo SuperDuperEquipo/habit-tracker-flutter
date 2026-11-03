@@ -1,9 +1,12 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
+import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
 import 'package:rachas/features/login/auth_service.dart';
+import 'package:rachas/features/statistics/statistics_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -20,16 +23,31 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [HabitsScreen(), _ProfileTab()],
+        children: [
+          const HabitsScreen(),
+          Consumer<HabitsProvider>(
+            builder: (context, provider, _) {
+              return StatisticsView(habits: provider.habits);
+            },
+          ),
+          const _ProfileTab(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (index) => setState(() => _index = index),
+        onDestinationSelected: (index) {
+          setState(() => _index = index);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.yard_outlined),
             selectedIcon: Icon(Icons.yard),
             label: AppStrings.navHabits,
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart),
+            label: AppStrings.navStats,
           ),
           NavigationDestination(
             icon: Icon(Icons.account_circle_outlined),
@@ -59,16 +77,23 @@ class _ProfileTabState extends State<_ProfileTab> {
   }
 
   Future<void> _signOut() async {
-    // Se guarda el navigator antes del await para no usar el context después.
-    final navigator = Navigator.of(context);
-    await context.read<AuthService>().signOut();
-    navigator.pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
+    final authService = context.read<AuthService>();
+    await authService.signOut();
+
+    if (!mounted) return;
+
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRoutes.login,
+      (route) => false,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.navProfile)),
+      appBar: AppBar(
+        title: const Text(AppStrings.navProfile),
+      ),
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -77,7 +102,11 @@ class _ProfileTabState extends State<_ProfileTab> {
               future: _nameFuture,
               builder: (context, snapshot) {
                 final name = snapshot.data;
-                if (name == null || name.isEmpty) return const SizedBox();
+
+                if (name == null || name.isEmpty) {
+                  return const SizedBox();
+                }
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(

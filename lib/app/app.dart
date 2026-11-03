@@ -7,6 +7,7 @@ import 'package:rachas/core/network/api_client.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
+import 'package:rachas/features/habits/habits_provider.dart';
 
 class RachasApp extends StatelessWidget {
   const RachasApp({
@@ -32,6 +33,12 @@ class RachasApp extends StatelessWidget {
         Provider<AuthService>.value(value: authService),
         Provider<HabitRepository>.value(value: habitRepository),
         Provider<NotificationService>.value(value: notifications),
+        ChangeNotifierProvider<HabitsProvider>(
+          create: (context) => HabitsProvider(
+            repository: context.read<HabitRepository>(),
+            readUserName: context.read<AuthService>().readDisplayName,
+          ),
+        ),
       ],
       child: MaterialApp(
         title: AppStrings.appName,

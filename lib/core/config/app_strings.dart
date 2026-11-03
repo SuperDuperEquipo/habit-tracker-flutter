@@ -152,4 +152,21 @@ abstract final class AppStrings {
   static const String deleteDialogTitle = '¿Eliminar este hábito?';
   static String deleteDialogBody(String name) =>
       'Se borrará "$name" con su racha e historial. Esta acción no se puede deshacer.';
+
+  // Estadisticas 
+  static const String navStats = 'Estadísticas';
+  static const String statsTitle = 'Estadísticas';
+  static const String statsWeekRate = 'Cumplimiento de la semana';
+  static const String statsBestStreak = 'Mejor racha';
+  static const String statsMostConsistent = 'Hábito más constante';
+  static const String statsNoData = 'Sin datos todavía';
+  static const String statsEmpty =
+      'Cuando tengas hábitos, aquí verás cómo vas en la semana.';
+
+  static String statsDays(int n) => n == 1 ? '1 día' : '$n días';
+  static String statsDaysOf(int done, int total) =>
+      '$done de $total días completados';
+  static String statsConsistentDetail(int percent) =>
+      '$percent% de cumplimiento';
+
 }
