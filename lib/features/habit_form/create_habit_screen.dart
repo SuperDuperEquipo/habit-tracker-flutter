@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/features/habit_form/habit_form.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/habit_repository.dart'; // Usamos la interfaz general
+import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/core/errors/app_exception.dart';
-import 'package:rachas/features/notifications/notification_service.dart'; // Opcional para Fase 3
+import 'package:rachas/features/notifications/notification_service.dart';
 
 class CreateHabitScreen extends StatefulWidget {
   const CreateHabitScreen({
@@ -108,7 +108,6 @@ class _CreateHabitScreenState extends State<CreateHabitScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Insertamos HabitForm directamente sin un Form externo anidado
             HabitForm(
               key: _formKey,
               submitLabel: _isSaving ? 'Guardando hábito...' : 'Guardar hábito',
