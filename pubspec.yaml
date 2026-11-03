@@ -16,6 +16,9 @@ dependencies:
   flutter_timezone: ^5.0.1
   timezone: ^0.11.0
   intl: ^0.20.2
+  firebase_core: ^5.1.0
+  firebase_analytics: ^13.0.1
+  firebase_crashlytics: ^6.0.1
 
 dev_dependencies:
   flutter_test:

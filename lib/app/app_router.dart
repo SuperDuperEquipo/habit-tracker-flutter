@@ -14,13 +14,16 @@ abstract final class AppRouter {
     switch (settings.name) {
       case AppRoutes.login:
         return _route(settings, const LoginScreen());
+      case AppRoutes.forgotPassword:
+        return _route(settings, const ForgotPasswordScreen());
       case AppRoutes.home:
         return _route(settings, const HomeShell());
       case AppRoutes.createHabit:
         return MaterialPageRoute<dynamic>(
           settings: settings,
           builder: (context) => CreateHabitScreen(
-            habitRepository: context.read<HabitRepository>() as ApiHabitRepository,
+            habitRepository:
+                context.read<HabitRepository>() as ApiHabitRepository,
           ),
         );
       case AppRoutes.editHabit:
