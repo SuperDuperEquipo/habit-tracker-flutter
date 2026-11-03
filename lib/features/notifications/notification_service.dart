@@ -62,27 +62,40 @@ class NotificationService {
     }
     if (!_ready) return;
 
-    await _requestPermissionOnce();
-    await _plugin.zonedSchedule(
-      id: idFor(habit.id),
-      scheduledDate: _nextOccurrence(time.hour, time.minute),
-      notificationDetails: _details,
-      androidScheduleMode: await _scheduleMode(),
-      title: habit.name,
-      body: AppStrings.reminderBody,
-      payload: habit.id,
-      matchDateTimeComponents: DateTimeComponents.time,
-    );
+    // Un recordatorio que falla no debe impedir guardar el hábito.
+    try {
+      await _requestPermissionOnce();
+      await _plugin.zonedSchedule(
+        id: idFor(habit.id),
+        scheduledDate: _nextOccurrence(time.hour, time.minute),
+        notificationDetails: _details,
+        androidScheduleMode: await _scheduleMode(),
+        title: habit.name,
+        body: AppStrings.reminderBody,
+        payload: habit.id,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+    } on Object catch (error) {
+      debugPrint('NotificationService.schedule falló: $error');
+    }
   }
 
   Future<void> cancel(String habitId) async {
     if (!_ready) return;
-    await _plugin.cancel(id: idFor(habitId));
+    try {
+      await _plugin.cancel(id: idFor(habitId));
+    } on Object catch (error) {
+      debugPrint('NotificationService.cancel falló: $error');
+    }
   }
 
   Future<void> cancelAll() async {
     if (!_ready) return;
-    await _plugin.cancelAll();
+    try {
+      await _plugin.cancelAll();
+    } on Object catch (error) {
+      debugPrint('NotificationService.cancelAll falló: $error');
+    }
   }
 
   AndroidFlutterLocalNotificationsPlugin? get _android {

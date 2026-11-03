@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
+import 'package:rachas/core/theme/app_theme.dart';
+import 'package:rachas/core/widgets/app_logo.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
 import 'package:rachas/features/login/auth_service.dart';
+import 'package:rachas/features/notifications/notification_service.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -22,21 +25,27 @@ class _HomeShellState extends State<HomeShell> {
         index: _index,
         children: const [HabitsScreen(), _ProfileTab()],
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: (index) => setState(() => _index = index),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.yard_outlined),
-            selectedIcon: Icon(Icons.yard),
-            label: AppStrings.navHabits,
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.account_circle_outlined),
-            selectedIcon: Icon(Icons.account_circle),
-            label: AppStrings.navProfile,
-          ),
-        ],
+      // Línea fina arriba de la barra, como en Stitch.
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          border: Border(top: BorderSide(color: AppTheme.skyBlue)),
+        ),
+        child: NavigationBar(
+          selectedIndex: _index,
+          onDestinationSelected: (index) => setState(() => _index = index),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.yard_outlined),
+              selectedIcon: Icon(Icons.yard),
+              label: AppStrings.navHabits,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.account_circle_outlined),
+              selectedIcon: Icon(Icons.account_circle),
+              label: AppStrings.navProfile,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -59,40 +68,111 @@ class _ProfileTabState extends State<_ProfileTab> {
   }
 
   Future<void> _signOut() async {
-    // Se guarda el navigator antes del await para no usar el context después.
+    // Se guardan las dependencias antes del await para no usar el context.
     final navigator = Navigator.of(context);
-    await context.read<AuthService>().signOut();
+    final auth = context.read<AuthService>();
+    final notifications = context.read<NotificationService?>();
+    await auth.signOut();
+    // Los recordatorios son de la cuenta que sale.
+    await notifications?.cancelAll();
     navigator.pushNamedAndRemoveUntil(AppRoutes.login, (route) => false);
   }
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.navProfile)),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
           children: [
-            FutureBuilder<String?>(
-              future: _nameFuture,
-              builder: (context, snapshot) {
-                final name = snapshot.data;
-                if (name == null || name.isEmpty) return const SizedBox();
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Text(
-                    AppStrings.profileGreeting(name),
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                );
-              },
+            Row(
+              children: [
+                const AppLogo(size: 40),
+                const SizedBox(width: 10),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppStrings.appName,
+                      style: textTheme.titleMedium?.copyWith(
+                        color: AppTheme.navy,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      AppStrings.navProfile,
+                      style: textTheme.bodySmall?.copyWith(
+                        color: AppTheme.slateBlue,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const Text(AppStrings.featureUnavailable),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: AppTheme.beige,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.skyBlue),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: const BoxDecoration(
+                      color: AppTheme.navy,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.person,
+                      size: 36,
+                      color: AppTheme.background,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  FutureBuilder<String?>(
+                    future: _nameFuture,
+                    builder: (context, snapshot) {
+                      final name = snapshot.data?.trim() ?? '';
+                      return Text(
+                        name.isEmpty
+                            ? AppStrings.profileDefaultTitle
+                            : AppStrings.profileGreeting(name),
+                        textAlign: TextAlign.center,
+                        style: textTheme.headlineSmall?.copyWith(
+                          color: AppTheme.navy,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    AppStrings.profileBody,
+                    textAlign: TextAlign.center,
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: AppTheme.slateBlue,
+                    ),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: _signOut,
               icon: const Icon(Icons.logout),
               label: const Text(AppStrings.signOut),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+                backgroundColor: AppTheme.beige,
+                foregroundColor: AppTheme.darkPink,
+                side: const BorderSide(color: AppTheme.darkPink),
+              ),
             ),
           ],
         ),
