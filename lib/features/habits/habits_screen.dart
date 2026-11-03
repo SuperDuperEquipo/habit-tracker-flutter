@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
@@ -9,6 +10,7 @@ import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/habits/habits_provider.dart';
+import 'package:rachas/features/habits/streak_logic.dart' show isCompletedOn;
 import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
 import 'package:rachas/features/habits/widgets/offline_state.dart';
@@ -24,10 +26,10 @@ class HabitsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) =>
-          HabitsProvider(repository: context.read<HabitRepository>(),
-          readUserName: TokenStorage().readDisplayName,
-        )..loadUserName(),
+      create: (context) => HabitsProvider(
+        repository: context.read<HabitRepository>(),
+        readUserName: TokenStorage().readDisplayName,
+      )..loadUserName(),
       child: _HabitsView(userName: userName),
     );
   }
@@ -60,14 +62,25 @@ class _HabitsViewState extends State<_HabitsView> {
     if (mounted) await context.read<HabitsProvider>().refresh();
   }
 
-  Future<void> _openEdit(Habit habit) async {
-    await Navigator.pushNamed(context, AppRoutes.editHabit, arguments: habit);
+  Future<void> _openDetail(Habit habit) async {
+    await Navigator.pushNamed(context, AppRoutes.habitDetail, arguments: habit);
     if (mounted) await context.read<HabitsProvider>().refresh();
   }
 
   Future<void> _toggle(Habit habit) async {
-    final error = await context.read<HabitsProvider>().toggle(habit.id);
+    final provider = context.read<HabitsProvider>();
+    final wasCompleted = isCompletedOn(habit, provider.today);
+
+    final error = await provider.toggle(habit.id);
     _showError(error);
+
+    if (error == null && !wasCompleted) await _logHabitCompleted();
+  }
+
+  Future<void> _logHabitCompleted() async {
+    try {
+      await FirebaseAnalytics.instance.logEvent(name: 'habit_completed');
+    } catch (_) {}
   }
 
   Future<void> _useJoker(Habit habit) async {
@@ -130,26 +143,29 @@ class _HabitsViewState extends State<_HabitsView> {
           ViewError(:final error) => <Widget>[
             OfflineState(error: error, onRetry: _retry),
           ],
-          ViewData(:final data) => <Widget>[
+          ViewData() => <Widget>[
             HabitsSummary(
               completed: provider.completedToday,
               total: provider.total,
             ),
             const SizedBox(height: 16),
-            for (final habit in data)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: HabitCard(
-                  key: ValueKey(habit.id),
-                  habit: habit,
-                  today: provider.today,
-                  onToggle: () => _toggle(habit),
-                  onUseJoker: () => _useJoker(habit),
-                  onOpen: () => _openEdit(habit),
-                ),
-              ),
           ],
         };
+
+        final top = <Widget>[
+          const _Header(),
+          const SizedBox(height: 16),
+          _Greeting(
+            name: widget.userName ?? provider.userName,
+            subtitle: hasData
+                ? AppStrings.habitsScheduled(provider.total)
+                : AppStrings.habitsCalmSubtitle,
+          ),
+          const SizedBox(height: 16),
+          ...content,
+        ];
+
+        final habits = hasData ? provider.habits : const <Habit>[];
 
         return Scaffold(
           floatingActionButton: hasData
@@ -162,20 +178,26 @@ class _HabitsViewState extends State<_HabitsView> {
                 )
               : null,
           body: SafeArea(
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
-              children: [
-                const _Header(),
-                const SizedBox(height: 16),
-                _Greeting(
-                  name: widget.userName ?? provider.userName,
-                  subtitle: hasData
-                      ? AppStrings.habitsScheduled(provider.total)
-                      : AppStrings.habitsCalmSubtitle,
-                ),
-                const SizedBox(height: 16),
-                ...content,
-              ],
+
+              itemCount: top.length + habits.length,
+              itemBuilder: (context, index) {
+                if (index < top.length) return top[index];
+
+                final habit = habits[index - top.length];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: HabitCard(
+                    key: ValueKey(habit.id),
+                    habit: habit,
+                    today: provider.today,
+                    onToggle: () => _toggle(habit),
+                    onUseJoker: () => _useJoker(habit),
+                    onOpen: () => _openDetail(habit),
+                  ),
+                );
+              },
             ),
           ),
         );

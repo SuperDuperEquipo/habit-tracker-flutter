@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habit_form/habit_form.dart';
 import 'package:rachas/features/habits/habit.dart';
@@ -47,6 +47,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
     if (confirmed != true || !mounted) return;
     await _run(() => repository.delete(widget.habit.id));
   }
+
   /// (Mis hábitos recarga la lista al volver). Si falla, muestra el error.
   Future<void> _run(Future<Object?> Function() action) async {
     setState(() => _busy = true);
@@ -95,9 +96,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                 onPressed: _busy ? null : _delete,
                 icon: const Icon(Icons.delete_outline),
                 label: const Text(AppStrings.deleteHabit),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.darkPink,
-                ),
+                style: TextButton.styleFrom(foregroundColor: AppTheme.darkPink),
               ),
             ),
           ],
