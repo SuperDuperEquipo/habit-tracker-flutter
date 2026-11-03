@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rachas/app/app.dart';
 import 'package:rachas/app/app_routes.dart';
@@ -8,11 +9,13 @@ import 'package:rachas/features/habits/in_memory_habit_repository.dart';
 import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/login/token_storage.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
+import 'package:rachas/firebase_options.dart';
 
 const bool _useApi = bool.fromEnvironment('USE_API');
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   final notifications = NotificationService();
   await notifications.init();
