@@ -14,6 +14,70 @@ Si en el emulador de Android aparecen textos o íconos que faltan o rayas sobre 
 
 Antes de abrir un PR: `dart format .`, `flutter analyze` y `flutter test`.
 
+## Datos de prueba (seed)
+
+`tool/seed.dart` crea en Firebase cuatro cuentas de prueba. Cada una tiene los hábitos necesarios para ver un estado distinto de la app.
+
+```
+dart run tool/seed.dart
+```
+
+Salida esperada:
+
+```
+ana@rachas.test: 5 hábitos
+luis@rachas.test: 3 hábitos
+sofia@rachas.test: 2 hábitos
+nuevo@rachas.test: 0 hábitos
+Listo. Contraseña de todas las cuentas: rachas123
+```
+
+- **Hay que correrlo el mismo día de la prueba o la demo.** Las fechas se calculan desde el día en que se corre. Al día siguiente, lo que estaba "completado hoy" pasa a "ayer" y las rachas cambian.
+- Se puede correr las veces que haga falta. Si la cuenta ya existe, inicia sesión y **reemplaza** sus hábitos, así que se borra lo que se haya creado a mano en ella. Sirve para dejar todo como al inicio después de probar.
+- Los hábitos del seed solo se ven con `flutter run --dart-define=USE_API=true`. Sin esa bandera también se puede entrar con estas cuentas, pero la lista muestra los hábitos de ejemplo en memoria.
+- Si el seed dice que una cuenta "ya existe con otra contraseña", hay que borrarla en Firebase Console → Authentication y volver a correrlo.
+- Los perfiles están en `tool/seed_profiles.dart`. `test/seed_profiles_test.dart` comprueba que cada perfil siga mostrando lo que dicen las tablas de abajo. Si se cambia un perfil, hay que actualizar también el test y este README.
+
+### Perfiles
+
+Contraseña de todas las cuentas: `rachas123`. Los correos usan el dominio reservado `.test`, así que ningún correo de la app le llega a nadie.
+
+| Correo | Nombre | Inicio | Para probar |
+|---|---|---|---|
+| `ana@rachas.test` | Ana | 2 de 5 completados | Todos los casos de racha y comodín. Es el perfil para la demo |
+| `luis@rachas.test` | Luis | 3 de 3, "¡Lo lograste!" | Desmarcar y la semana al 100 % |
+| `sofia@rachas.test` | Sofía | 0 de 2 | Usar un comodín y un hábito creado hoy |
+| `nuevo@rachas.test` | Sin nombre | Lista vacía | Crear el primer hábito y el saludo sin nombre |
+
+**Ana**
+
+| Hábito | Hoy | Qué se ve |
+|---|---|---|
+| Lectura de apuntes | Completado, racha de 12 | 3 comodines, recordatorio 08:30. Es el "Hábito más constante" |
+| Repaso con Pomodoro | Completado, racha de 4 | Tuvo una racha de 21 días: es la "Mejor racha" en Estadísticas |
+| Tomar 2L de agua | Pendiente, ayer sí | Aparece "Usar comodín" (le quedan 2) |
+| Caminar 20 minutos | Pendiente, racha rota (0) | Sin recordatorio. No ofrece comodín porque ayer no se cumplió |
+| Meditar 5 minutos | Pendiente, ayer sí | 0 comodines, así que no aparece "Usar comodín" |
+
+**Luis:** Rutina de ejercicio (racha de 30), Desayunar antes de clase (15) y Dibujar 15 minutos (9, sin recordatorio). Todos están completados hoy y toda la semana, así que Estadísticas marca 100 %. Al desmarcar uno baja su racha y el resumen cambia a 2 de 3.
+
+**Sofía:** Practicar inglés tiene una racha de 10 hasta ayer y le queda 1 comodín, así que se puede usar. Dormir antes de las 11 se creó hoy y no tiene días completados; Estadísticas solo lo cuenta desde hoy. El resumen dice "Un paso pequeño es suficiente para empezar".
+
+**nuevo:** sin hábitos y sin nombre. Se ve el estado vacío, el saludo "¡Buen día!", "Tu perfil" en Perfil y Estadísticas sin datos.
+
+El calendario del detalle muestra solo el mes actual: a inicio de mes se ven pocos días marcados aunque la racha sea larga.
+
+### Otros casos
+
+| Caso | Cómo probarlo |
+|---|---|
+| Contraseña incorrecta | Cualquier perfil con otra contraseña |
+| Correo ya registrado | Crear cuenta con `ana@rachas.test` |
+| Recuperar contraseña | Cualquier correo. El proyecto de Firebase tiene activa la protección contra enumeración de correos: responde que envió el enlace aunque el correo no exista. Por eso el mensaje "No encontramos una cuenta con ese correo" no aparece con este proyecto |
+| Sin conexión | Iniciar sesión, cerrar la app, activar el modo avión y volver a abrirla. "Reintentar" carga la lista al quitar el modo avión |
+| Sesión guardada | Cerrar la app sin cerrar sesión: vuelve a abrir en Mis hábitos |
+| Recordatorios | Se programan al guardar un hábito. Los del seed no tienen notificación programada hasta que se editan: editar uno, poner la hora uno o dos minutos adelante y guardar |
+
 ## Estructura
 
 Capas: pantalla → Provider → `HabitRepository` → `ApiClient`. Ninguna pantalla importa Dio ni hace `jsonDecode`.
@@ -35,6 +99,7 @@ lib/
 │   ├── habit_form/      HabitForm, crear y editar
 │   └── notifications/   NotificationService
 └── main.dart
+tool/                    seed de datos de prueba
 ```
 
 ## Decisiones
