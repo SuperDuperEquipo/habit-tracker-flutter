@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
@@ -23,7 +24,15 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [HabitsScreen(), _ProfileTab()],
+        children: [
+          const HabitsScreen(),
+          Consumer<HabitsProvider>(
+            builder: (context, provider, _) {
+              return StatisticsView(habits: provider.habits);
+            },
+          ),
+          const _ProfileTab(),
+        ],
       ),
       // Línea fina arriba de la barra, como en Stitch.
       bottomNavigationBar: DecoratedBox(

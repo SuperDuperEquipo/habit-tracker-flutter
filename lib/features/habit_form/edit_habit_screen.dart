@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
@@ -40,13 +41,15 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
     );
 
     setState(() => _busy = true);
+
     try {
       final saved = await repository.update(edited);
       await notifications?.schedule(saved);
       if (!mounted) return;
+
       Navigator.pop(context, true);
-    } on AppException catch (e) {
-      _fail(e.message);
+    } on AppException catch (error) {
+      _fail(error.message);
     } on Object {
       _fail(AppStrings.unexpectedError);
     }
@@ -54,7 +57,9 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
 
   void _fail(String message) {
     if (!mounted) return;
+
     setState(() => _busy = false);
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -115,9 +120,9 @@ class _StreakNotice extends StatelessWidget {
             child: Text(
               AppStrings.editStreakNotice,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppTheme.navy,
-                fontWeight: FontWeight.w600,
-              ),
+                    color: AppTheme.navy,
+                    fontWeight: FontWeight.w600,
+                  ),
             ),
           ),
         ],
