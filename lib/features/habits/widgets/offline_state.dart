@@ -20,8 +20,9 @@ class OfflineState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.skyBlue.withValues(alpha: 0.3),
-        border: Border.all(color: AppTheme.skyBlue.withValues(alpha: 0.6)),
+        // Stitch: el aviso sin conexión es suave, en Pale Pink.
+        color: AppTheme.palePink,
+        border: Border.all(color: AppTheme.azalea.withValues(alpha: 0.8)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(

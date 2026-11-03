@@ -10,6 +10,8 @@ Requiere Flutter 3.38 o superior.
 2. `flutter pub get`
 3. `flutter run` (hábitos de ejemplo en memoria) o `flutter run --dart-define=USE_API=true` (Firebase).
 
+Si en el emulador de Android aparecen textos o íconos que faltan o rayas sobre la pantalla, es un fallo de Impeller con OpenGLES en el emulador, no de la app. Se arregla con `flutter run --no-enable-impeller`.
+
 Antes de abrir un PR: `dart format .`, `flutter analyze` y `flutter test`.
 
 ## Estructura
