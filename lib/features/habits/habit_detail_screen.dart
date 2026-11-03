@@ -5,6 +5,9 @@ import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/utils/date_helpers.dart';
+import 'package:rachas/core/widgets/app_dialogs.dart';
+import 'package:rachas/core/widgets/app_logo.dart';
+import 'package:rachas/features/notifications/notification_service.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/habits/streak_logic.dart' show currentStreak;
@@ -22,11 +25,49 @@ class HabitDetailScreen extends StatefulWidget {
 
 class _HabitDetailScreenState extends State<HabitDetailScreen> {
   late Habit _habit;
+  bool _deleting = false;
 
   @override
   void initState() {
     super.initState();
     _habit = widget.habit;
+  }
+
+  Future<void> _delete() async {
+    final repository = context.read<HabitRepository>();
+    final notifications = context.read<NotificationService?>();
+    final confirmed = await AppDialogs.showConfirmDialog(
+      context: context,
+      title: AppStrings.deleteDialogTitle,
+      message: AppStrings.deleteDialogBody(_habit.name),
+      confirmLabel: AppStrings.delete,
+      icon: Icons.delete_outline,
+      destructive: true,
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _deleting = true);
+    try {
+      await repository.delete(_habit.id);
+      await notifications?.cancel(_habit.id);
+      if (!mounted) return;
+      // Mis hábitos recarga la lista al volver.
+      Navigator.pop(context, true);
+    } on Object catch (error) {
+      if (!mounted) return;
+      setState(() => _deleting = false);
+      final message = error is AppException
+          ? error.message
+          : AppStrings.unexpectedError;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(message),
+            action: SnackBarAction(label: AppStrings.retry, onPressed: _delete),
+          ),
+        );
+    }
   }
 
   Future<void> _openEdit() async {
@@ -63,7 +104,7 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
     final reminder = _reminderText(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.habitDetailTitle)),
+      appBar: AppBar(title: const AppBarTitle(AppStrings.habitDetailTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(20),
@@ -97,21 +138,43 @@ class _HabitDetailScreenState extends State<HabitDetailScreen> {
               const SizedBox(height: 16),
 
               SizedBox(
-                height: 48,
+                height: 52,
                 child: OutlinedButton.icon(
                   key: const ValueKey('edit-button'),
-                  onPressed: _openEdit,
+                  onPressed: _deleting ? null : _openEdit,
                   icon: const Icon(Icons.tune, size: 20),
                   label: const Text(AppStrings.editLabel),
                   style: OutlinedButton.styleFrom(
                     backgroundColor: AppTheme.beige,
                     foregroundColor: AppTheme.navy,
                     side: const BorderSide(color: AppTheme.skyBlue),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
                     textStyle: const TextStyle(fontWeight: FontWeight.w700),
                   ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                key: const ValueKey('delete-button'),
+                onPressed: _deleting ? null : _delete,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTheme.darkPink,
+                  disabledBackgroundColor: AppTheme.darkPink.withValues(
+                    alpha: 0.7,
+                  ),
+                  disabledForegroundColor: Colors.white,
+                ),
+                icon: _deleting
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(Icons.delete_outline),
+                label: Text(
+                  _deleting ? AppStrings.deleting : AppStrings.deleteHabit,
                 ),
               ),
             ],

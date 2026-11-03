@@ -29,7 +29,7 @@ abstract final class AppStrings {
   static const String cancelled = 'Solicitud cancelada';
 
   static const String loginTagline = 'Construye tu racha, un día a la vez';
-  static const String emailLabel = 'Correo';
+  static const String emailLabel = 'Correo electrónico';
   static const String passwordLabel = 'Contraseña';
   static const String confirmPasswordLabel = 'Confirmar contraseña';
   static const String signIn = 'Iniciar sesión';
@@ -41,11 +41,42 @@ abstract final class AppStrings {
   static const String hidePassword = 'Ocultar contraseña';
   static const String signOut = 'Cerrar sesión';
 
+  static const String resetPasswordTitle = 'Recuperar contraseña';
+  static const String resetPasswordSection = 'Recuperación';
+  static const String resetPasswordSubtitle =
+      'Ingresa tu correo electrónico asociado a tu cuenta y te enviaremos un enlace seguro para restablecer tu acceso.';
+  static const String resetEmailLabel = 'Correo electrónico';
+  static const String resetEmailHint = 'tu@correo.com';
+  static const String sendResetLink = 'Enviar enlace de recuperación';
+  static const String resetEmailSentTitle = '¡Enlace enviado con éxito!';
+  static const String resetEmailSent =
+      'Te enviamos un correo para restablecer tu contraseña. Revisa también tu carpeta de spam si no lo ves en unos minutos.';
+  static const String rememberedPasswordPrompt = '¿Recordaste tu contraseña?';
+  static const String backToLogin = 'Volver al inicio de sesión';
+  static const String emailNotRegistered =
+      'No encontramos una cuenta con ese correo';
+  static const String crashTestLabel = 'Probar Crashlytics (solo debug)';
+
+  static const String signingIn = 'Iniciando sesión...';
+  static const String creatingAccount = 'Creando cuenta...';
+  static const String tryAgain = 'Intentar de nuevo';
+  static const String signUpTitle = 'Crea tu cuenta';
+  static const String signUpTagline = 'Empieza hoy tu primera racha';
+  static const String loginTip =
+      'Marca tu hábito cada día y mira crecer tu racha';
+  static const String emailHint = 'tu@correo.com';
+  static const String newPasswordHint = 'Crea una contraseña segura';
+  static const String confirmPasswordHint = 'Repite tu contraseña';
+
   static const String nameLabel = 'Nombre';
+  static const String nameHint = '¿Cómo te llamas?';
   static const String nameRequired = 'Escribe tu nombre';
   static const String nameTooShort = 'El nombre debe tener al menos 2 letras';
   static const String nameTooLong = 'El nombre es demasiado largo';
   static String profileGreeting(String name) => 'Hola, $name';
+  static const String profileDefaultTitle = 'Tu perfil';
+  static const String profileBody =
+      'Sigue construyendo tu racha, un día a la vez.';
 
   static const String reminderChannelName = 'Recordatorios de hábitos';
   static const String reminderChannelDescription =
@@ -142,9 +173,27 @@ abstract final class AppStrings {
   static String calendarDay(int day, {required bool completed}) =>
       completed ? 'Día $day, completado' : 'Día $day';
 
+  // Crear hábito
+  static const String habitNameRequired = 'Escribe un nombre para tu hábito';
+  static const String habitNameTooShort =
+      'El nombre debe tener al menos 3 caracteres';
+  static const String newHabitSubtitle = 'Siembra una rutina a tu propio ritmo';
+  static const String saveHabit = 'Guardar hábito';
+  static const String savingHabit = 'Guardando hábito...';
+  static const String habitTipTitle = 'Consejo de constancia';
+  static const String habitTipBody =
+      'Enlaza este hábito inmediatamente después del desayuno para que tu memoria lo active de forma natural.';
+  static const String saveHabitErrorTitle = 'No pudimos guardar tu hábito';
+  static const String saveHabitErrorBody =
+      'Algo salió mal de nuestro lado. Intenta de nuevo más tarde.';
+  static const String close = 'Cerrar';
+
   // Editar y eliminar hábito
   static const String editHabitTitle = 'Editar hábito';
+  static const String editHabitSubtitle =
+      'Ajusta tu meta sin perder tu progreso';
   static const String editStreakNotice = 'Tu racha se conserva al editar';
+  static const String deleting = 'Eliminando...';
   static const String saveChanges = 'Guardar cambios';
   static const String savingChanges = 'Guardando cambios...';
   static const String deleteHabit = 'Eliminar hábito';

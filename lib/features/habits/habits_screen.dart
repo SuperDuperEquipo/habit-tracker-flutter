@@ -8,6 +8,7 @@ import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/state/view_state.dart';
 import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
+import 'package:rachas/core/widgets/app_logo.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/streak_logic.dart'
@@ -238,20 +239,8 @@ class _Header extends StatelessWidget {
 
     return Row(
       children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppTheme.navy,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.local_fire_department,
-            size: 20,
-            color: AppTheme.azalea,
-          ),
-        ),
-        const SizedBox(width: 8),
+        const AppLogo(size: 40),
+        const SizedBox(width: 10),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

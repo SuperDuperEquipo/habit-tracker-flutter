@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_router.dart';
 import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/network/api_client.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
@@ -43,7 +45,12 @@ class RachasApp extends StatelessWidget {
       child: MaterialApp(
         title: AppStrings.appName,
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(),
+        theme: AppTheme.lightTheme,
+        // Textos de Material (selector de hora, "Atrás") en español. es_US
+        // conserva la hora con a.m./p.m., como en el diseño de Stitch.
+        locale: const Locale('es', 'US'),
+        supportedLocales: const [Locale('es', 'US')],
+        localizationsDelegates: GlobalMaterialLocalizations.delegates,
         initialRoute: initialRoute,
         onGenerateRoute: AppRouter.onGenerateRoute,
       ),

@@ -41,15 +41,13 @@ class HabitTimePickerField extends StatelessWidget {
               onTimeChanged(picked);
             }
           },
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
               color: colorScheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: colorScheme.secondary.withValues(alpha: 0.4),
-              ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colorScheme.outlineVariant),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -61,7 +59,7 @@ class HabitTimePickerField extends StatelessWidget {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: colorScheme.secondary.withValues(alpha: 0.2),
+                          color: colorScheme.primaryContainer,
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -87,7 +85,7 @@ class HabitTimePickerField extends StatelessWidget {
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: colorScheme.secondary,
                               ),
-                              overflow: TextOverflow.ellipsis,
+                              maxLines: 2,
                             ),
                           ],
                         ),
@@ -102,7 +100,7 @@ class HabitTimePickerField extends StatelessWidget {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: colorScheme.secondary.withValues(alpha: 0.2),
+                    color: colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(

@@ -40,4 +40,16 @@ abstract final class Validators {
     if (text.length > maxPersonNameLength) return AppStrings.nameTooLong;
     return null;
   }
+
+  // hábitos ---
+
+  static const int minHabitNameLength = 3;
+  static const int maxHabitNameLength = 40;
+
+  static String? habitName(String? value) {
+    final text = value?.trim() ?? '';
+    if (text.isEmpty) return AppStrings.habitNameRequired;
+    if (text.length < minHabitNameLength) return AppStrings.habitNameTooShort;
+    return null;
+  }
 }

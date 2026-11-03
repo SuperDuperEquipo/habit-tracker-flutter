@@ -84,20 +84,21 @@ class HabitIconPicker extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               child: Container(
                 decoration: BoxDecoration(
+                  // Stitch: el seleccionado en Sky Blue con borde Slate Blue.
                   color: isSelected
-                      ? colorScheme.secondary
+                      ? colorScheme.primaryContainer
                       : colorScheme.surface,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
                     color: isSelected
-                        ? colorScheme.primary.withOpacity(0.3)
+                        ? colorScheme.secondary
                         : Colors.transparent,
                   ),
                 ),
                 child: Icon(
                   option.icon,
                   color: isSelected
-                      ? colorScheme.onSecondary
+                      ? colorScheme.onPrimaryContainer
                       : colorScheme.secondary,
                   size: 24,
                 ),

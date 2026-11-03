@@ -15,6 +15,7 @@ class AppTextField extends StatelessWidget {
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
   final ValueChanged<String>? onFieldSubmitted;
+  final FormFieldValidator<String>? validator;
 
   const AppTextField({
     super.key,
@@ -32,6 +33,7 @@ class AppTextField extends StatelessWidget {
     this.focusNode,
     this.textInputAction,
     this.onFieldSubmitted,
+    this.validator,
   });
 
   @override
@@ -39,6 +41,13 @@ class AppTextField extends StatelessWidget {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final hasError = errorMessage != null && errorMessage!.isNotEmpty;
+
+    // Sin error se usan los bordes del tema. Con un error del servidor, el
+    // borde pasa a Rosa Oscuro, como en Stitch.
+    final errorBorder = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: BorderSide(color: colorScheme.error, width: 2),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,9 +63,9 @@ class AppTextField extends StatelessWidget {
                 ],
                 Text(
                   label,
-                  style: theme.textTheme.labelMedium?.copyWith(
+                  style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: colorScheme.secondary, // Slate Blue desde el tema
+                    color: colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -75,7 +84,7 @@ class AppTextField extends StatelessWidget {
               ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         TextFormField(
           controller: controller,
           obscureText: isPassword ? obscureText : false,
@@ -84,28 +93,15 @@ class AppTextField extends StatelessWidget {
           textInputAction: textInputAction,
           onFieldSubmitted: onFieldSubmitted,
           onChanged: onChanged,
-          style: theme.textTheme.bodyMedium?.copyWith(
+          validator: validator,
+          style: theme.textTheme.bodyLarge?.copyWith(
             color: colorScheme.onSurface,
           ),
           decoration: InputDecoration(
             hintText: placeholder,
             counterText: '',
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: hasError
-                    ? colorScheme.error
-                    : colorScheme.secondary.withOpacity(0.4),
-                width: hasError ? 2 : 1,
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: hasError ? colorScheme.error : colorScheme.primary,
-                width: 2,
-              ),
-            ),
+            enabledBorder: hasError ? errorBorder : null,
+            focusedBorder: hasError ? errorBorder : null,
             suffixIcon: isPassword
                 ? IconButton(
                     icon: Icon(
@@ -119,7 +115,7 @@ class AppTextField extends StatelessWidget {
                 : (onClear != null && (controller?.text.isNotEmpty ?? false))
                 ? IconButton(
                     icon: Icon(
-                      Icons.cancel,
+                      Icons.cancel_outlined,
                       color: colorScheme.secondary,
                       size: 20,
                     ),
@@ -134,11 +130,13 @@ class AppTextField extends StatelessWidget {
             children: [
               Icon(Icons.error_outline, size: 16, color: colorScheme.error),
               const SizedBox(width: 4),
-              Text(
-                errorMessage!,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: colorScheme.error, // Rosa oscuro del tema
-                  fontWeight: FontWeight.w500,
+              Expanded(
+                child: Text(
+                  errorMessage!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colorScheme.error,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ),
             ],
