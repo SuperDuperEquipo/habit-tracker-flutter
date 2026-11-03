@@ -67,12 +67,9 @@ class _HabitsViewState extends State<_HabitsView> {
     }
   }
 
-  Future<void> _openEdit(Habit habit) async {
-    await Navigator.pushNamed(
-      context,
-      AppRoutes.editHabit,
-      arguments: habit,
-    );
+  // El detalle tiene el calendario, editar y eliminar.
+  Future<void> _openDetail(Habit habit) async {
+    await Navigator.pushNamed(context, AppRoutes.habitDetail, arguments: habit);
 
     if (mounted) {
       await context.read<HabitsProvider>().refresh();
@@ -191,7 +188,7 @@ class _HabitsViewState extends State<_HabitsView> {
                     today: provider.today,
                     onToggle: () => _toggle(habit),
                     onUseJoker: () => _useJoker(habit),
-                    onOpen: () => _openEdit(habit),
+                    onOpen: () => _openDetail(habit),
                   ),
                 ),
             ],

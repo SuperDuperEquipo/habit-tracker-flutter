@@ -7,6 +7,7 @@ import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_detail_screen.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
+import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
 import 'package:rachas/features/habits/in_memory_habit_repository.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
@@ -42,8 +43,14 @@ Habit _habitWithStreakOfThree() {
 }
 
 Widget _app({required Widget home, required HabitRepository repository}) {
-  return Provider<HabitRepository>.value(
-    value: repository,
+  // Igual que app.dart: HabitsScreen usa el HabitsProvider compartido.
+  return MultiProvider(
+    providers: [
+      Provider<HabitRepository>.value(value: repository),
+      ChangeNotifierProvider<HabitsProvider>(
+        create: (_) => HabitsProvider(repository: repository),
+      ),
+    ],
     child: MaterialApp(home: home, onGenerateRoute: AppRouter.onGenerateRoute),
   );
 }
