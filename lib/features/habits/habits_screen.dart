@@ -1,14 +1,17 @@
 
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/state/view_state.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habits_provider.dart';
+import 'package:rachas/features/habits/streak_logic.dart'
+    show isCompletedOn;
 import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
 import 'package:rachas/features/habits/widgets/habits_summary.dart';
@@ -17,7 +20,7 @@ import 'package:rachas/features/habits/widgets/offline_state.dart';
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key, this.userName});
 
-  /// El saludo no lleva nombre por defecto; acepta uno opcional.
+  /// El saludo acepta un nombre opcional.
   final String? userName;
 
   @override
@@ -45,7 +48,6 @@ class _HabitsViewState extends State<_HabitsView> {
 
     final provider = context.read<HabitsProvider>();
 
-    // Carga los datos del usuario y sus hábitos desde el proveedor compartido.
     provider.loadUserName();
     _loadFuture = provider.load();
   }
@@ -77,8 +79,25 @@ class _HabitsViewState extends State<_HabitsView> {
   }
 
   Future<void> _toggle(Habit habit) async {
-    final error = await context.read<HabitsProvider>().toggle(habit.id);
+    final provider = context.read<HabitsProvider>();
+    final wasCompleted = isCompletedOn(habit, provider.today);
+
+    final error = await provider.toggle(habit.id);
     _showError(error);
+
+    if (error == null && !wasCompleted) {
+      await _logHabitCompleted();
+    }
+  }
+
+  Future<void> _logHabitCompleted() async {
+    try {
+      await FirebaseAnalytics.instance.logEvent(
+        name: 'habit_completed',
+      );
+    } catch (_) {
+      // Un fallo de Analytics no debe afectar la operación del hábito.
+    }
   }
 
   Future<void> _useJoker(Habit habit) async {
@@ -102,7 +121,9 @@ class _HabitsViewState extends State<_HabitsView> {
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(error.message)));
+      ..showSnackBar(
+        SnackBar(content: Text(error.message)),
+      );
   }
 
   ViewState<List<Habit>> _toViewState(
@@ -140,14 +161,19 @@ class _HabitsViewState extends State<_HabitsView> {
           ViewLoading() => <Widget>[
               const Padding(
                 padding: EdgeInsets.only(top: 80),
-                child: Center(child: CircularProgressIndicator()),
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ],
           ViewEmpty() => <Widget>[
               EmptyState(onCreate: _openCreate),
             ],
           ViewError(:final error) => <Widget>[
-              OfflineState(error: error, onRetry: _retry),
+              OfflineState(
+                error: error,
+                onRetry: _retry,
+              ),
             ],
           ViewData(:final data) => <Widget>[
               HabitsSummary(
@@ -264,7 +290,10 @@ class _Header extends StatelessWidget {
 }
 
 class _Greeting extends StatelessWidget {
-  const _Greeting({required this.name, required this.subtitle});
+  const _Greeting({
+    required this.name,
+    required this.subtitle,
+  });
 
   final String? name;
   final String subtitle;

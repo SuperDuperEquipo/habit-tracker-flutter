@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/core/config/app_strings.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/primary_button.dart';
 
 class EmptyState extends StatelessWidget {
@@ -72,9 +72,7 @@ class EmptyState extends StatelessWidget {
           Text(
             AppStrings.emptyBody,
             textAlign: TextAlign.center,
-            style: textTheme.bodyMedium?.copyWith(
-              color: AppTheme.slateBlue,
-            ),
+            style: textTheme.bodyMedium?.copyWith(color: AppTheme.slateBlue),
           ),
           const SizedBox(height: 24),
           PrimaryButton(

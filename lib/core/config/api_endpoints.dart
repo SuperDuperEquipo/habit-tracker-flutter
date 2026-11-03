@@ -6,8 +6,14 @@ abstract final class ApiEndpoints {
   static const String refreshToken =
       'https://securetoken.googleapis.com/v1/token';
 
+  static const String sendOobCode =
+      'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode';
+
   static String habits(String uid) => '/users/$uid/habits.json';
 
   static String habit(String uid, String habitId) =>
       '/users/$uid/habits/$habitId.json';
+
+  static const String updateProfile =
+      'https://identitytoolkit.googleapis.com/v1/accounts:update';
 }

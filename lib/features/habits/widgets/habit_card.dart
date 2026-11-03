@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/habit_icons.dart';
 import 'package:rachas/features/habits/streak_logic.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/features/habits/widgets/habit_avatar.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 
 class HabitCard extends StatelessWidget {
   const HabitCard({
@@ -47,7 +47,7 @@ class HabitCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                _HabitIcon(habit: habit),
+                HabitAvatar(habit: habit),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -92,35 +92,6 @@ class HabitCard extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _HabitIcon extends StatelessWidget {
-  const _HabitIcon({required this.habit});
-
-  final Habit habit;
-
-  @override
-  Widget build(BuildContext context) {
-    final color = Color(habit.colorValue);
-    final isDark = ThemeData.estimateBrightnessForColor(color) == Brightness.dark;
-
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppTheme.slateBlue.withValues(alpha: 0.25),
-        ),
-      ),
-      child: Icon(
-        habitIcon(habit.iconKey),
-        size: 22,
-        color: isDark ? Colors.white : AppTheme.navy,
       ),
     );
   }
@@ -277,9 +248,7 @@ class _CheckButtonState extends State<_CheckButton>
                   boxShadow: [
                     if (_glow.isAnimating)
                       BoxShadow(
-                        color: AppTheme.azalea.withValues(
-                          alpha: 0.7 * (1 - t),
-                        ),
+                        color: AppTheme.azalea.withValues(alpha: 0.7 * (1 - t)),
                         spreadRadius: 12 * t,
                       ),
                   ],
