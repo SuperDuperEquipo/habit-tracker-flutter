@@ -9,6 +9,7 @@ import 'package:rachas/features/habits/habits_screen.dart';
 import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
 import 'package:rachas/features/statistics/statistics_screen.dart';
+import 'package:rachas/features/journal/journal_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -27,6 +28,7 @@ class _HomeShellState extends State<HomeShell> {
         index: _index,
         children: [
           const HabitsScreen(),
+          const JournalScreen(),
           Consumer<HabitsProvider>(
             builder: (context, provider, _) {
               return StatisticsView(habits: provider.habits);
@@ -48,6 +50,11 @@ class _HomeShellState extends State<HomeShell> {
               icon: Icon(Icons.yard_outlined),
               selectedIcon: Icon(Icons.yard),
               label: AppStrings.navHabits,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.book_outlined),
+              selectedIcon: Icon(Icons.book),
+              label: AppStrings.navJournal,
             ),
             NavigationDestination(
               icon: Icon(Icons.bar_chart_outlined),
