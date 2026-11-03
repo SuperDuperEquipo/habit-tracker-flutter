@@ -42,12 +42,17 @@ abstract final class AppStrings {
   static const String signOut = 'Cerrar sesión';
 
   static const String resetPasswordTitle = 'Recuperar contraseña';
+  static const String resetPasswordSection = 'Recuperación';
   static const String resetPasswordSubtitle =
-      'Escribe tu correo y te enviaremos un enlace para crear una nueva contraseña';
-  static const String sendResetLink = 'Enviar enlace';
+      'Ingresa tu correo electrónico asociado a tu cuenta y te enviaremos un enlace seguro para restablecer tu acceso.';
+  static const String resetEmailLabel = 'Correo electrónico';
+  static const String resetEmailHint = 'tu@correo.com';
+  static const String sendResetLink = 'Enviar enlace de recuperación';
+  static const String resetEmailSentTitle = '¡Enlace enviado con éxito!';
   static const String resetEmailSent =
-      'Te enviamos un correo para restablecer tu contraseña';
-  static const String backToLogin = 'Volver a iniciar sesión';
+      'Te enviamos un correo para restablecer tu contraseña. Revisa también tu carpeta de spam si no lo ves en unos minutos.';
+  static const String rememberedPasswordPrompt = '¿Recordaste tu contraseña?';
+  static const String backToLogin = 'Volver al inicio de sesión';
   static const String emailNotRegistered =
       'No encontramos una cuenta con ese correo';
 
