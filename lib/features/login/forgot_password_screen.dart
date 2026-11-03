@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
@@ -40,6 +44,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     });
   }
 
+  // Evento propio de Analytics, sin datos personales (no lleva el correo).
+  Future<void> _logResetRequested() async {
+    try {
+      await FirebaseAnalytics.instance.logEvent(
+        name: 'password_reset_requested',
+      );
+    } catch (_) {
+      // Analytics nunca debe romper la pantalla (y en las pruebas no hay Firebase).
+    }
+  }
+
   Future<void> _submit() async {
     if (_isLoading) return;
     FocusScope.of(context).unfocus();
@@ -55,6 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
     try {
       await auth.sendPasswordReset(_emailController.text);
+      unawaited(_logResetRequested());
       if (!mounted) return;
       setState(() {
         _isLoading = false;
@@ -196,6 +212,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                     ),
                   ),
+                  // Solo existe en desarrollo: provoca un crash de prueba.
+                  if (kDebugMode)
+                    TextButton(
+                      onPressed: () => FirebaseCrashlytics.instance.crash(),
+                      child: const Text(AppStrings.crashTestLabel),
+                    ),
                 ],
               ),
             ),
@@ -206,6 +228,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 }
 
+// Fila de arriba: botón de volver y la etiqueta "RECUPERACIÓN".
 class _TopBar extends StatelessWidget {
   const _TopBar({required this.onBack});
 
@@ -238,6 +261,7 @@ class _TopBar extends StatelessWidget {
   }
 }
 
+// Tarjeta que aparece cuando Firebase aceptó el envío del correo.
 class _SuccessCard extends StatelessWidget {
   const _SuccessCard({required this.onBack, required this.onRetry});
 
@@ -305,6 +329,7 @@ class _SuccessCard extends StatelessWidget {
   }
 }
 
+// Logo temporal: es el mismo del login; se reemplaza por el de Stitch.
 class _LogoHeader extends StatelessWidget {
   const _LogoHeader();
 

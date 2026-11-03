@@ -55,6 +55,7 @@ abstract final class AppStrings {
   static const String backToLogin = 'Volver al inicio de sesión';
   static const String emailNotRegistered =
       'No encontramos una cuenta con ese correo';
+  static const String crashTestLabel = 'Probar Crashlytics (solo debug)';
 
   static const String nameLabel = 'Nombre';
   static const String nameRequired = 'Escribe tu nombre';
