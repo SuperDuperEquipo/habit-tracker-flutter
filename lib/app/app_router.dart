@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:rachas/features/habits/api_habit_repository.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/login/forgot_password_screen.dart';
+import 'package:rachas/features/habits/habit_detail_screen.dart';
 
 abstract final class AppRouter {
   static Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -23,13 +24,18 @@ abstract final class AppRouter {
         return MaterialPageRoute<dynamic>(
           settings: settings,
           builder: (context) => CreateHabitScreen(
-            habitRepository: context.read<HabitRepository>() as ApiHabitRepository,
+            habitRepository:
+                context.read<HabitRepository>() as ApiHabitRepository,
           ),
         );
       case AppRoutes.editHabit:
         final habit = settings.arguments;
         if (habit is! Habit) return null;
         return _route(settings, EditHabitScreen(habit: habit));
+      case AppRoutes.habitDetail:
+        final habit = settings.arguments;
+        if (habit is! Habit) return null;
+        return _route(settings, HabitDetailScreen(habit: habit));
     }
     return null;
   }
