@@ -98,6 +98,50 @@ abstract final class AppStrings {
   static String markHabit(String name) => 'Marcar hábito $name';
   static String unmarkHabit(String name) => 'Desmarcar hábito $name';
 
+  static const String habitDetailTitle = 'Detalle del hábito';
+  static const String currentStreakLabel = 'Racha actual';
+  static const String jokersLeftLabel = 'Comodines restantes';
+  static const String editLabel = 'Editar hábito';
+  static const String jokersHint =
+      'Te protegen si no puedes cumplir un día de exámenes o entregas pesadas.';
+  static const String dailyReminderLabel = 'Recordatorio diario';
+
+  static String jokersLeftOf(int left, int max) => '$left de $max';
+
+  static String completedCount(int days) =>
+      days == 1 ? '1 logrado' : '$days logrados';
+
+  static const List<String> monthNames = [
+    'Enero',
+    'Febrero',
+    'Marzo',
+    'Abril',
+    'Mayo',
+    'Junio',
+    'Julio',
+    'Agosto',
+    'Septiembre',
+    'Octubre',
+    'Noviembre',
+    'Diciembre',
+  ];
+
+  static const List<String> weekdayInitials = [
+    'L',
+    'M',
+    'M',
+    'J',
+    'V',
+    'S',
+    'D',
+  ];
+
+  static String monthTitle(DateTime month) =>
+      '${monthNames[month.month - 1]} ${month.year}';
+
+  static String calendarDay(int day, {required bool completed}) =>
+      completed ? 'Día $day, completado' : 'Día $day';
+
   // Editar y eliminar hábito
   static const String editHabitTitle = 'Editar hábito';
   static const String editStreakNotice = 'Tu racha se conserva al editar';

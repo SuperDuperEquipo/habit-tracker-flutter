@@ -30,6 +30,10 @@ abstract final class AppRouter {
         final habit = settings.arguments;
         if (habit is! Habit) return null;
         return _route(settings, EditHabitScreen(habit: habit));
+      case AppRoutes.habitDetail:
+        final habit = settings.arguments;
+        if (habit is! Habit) return null;
+        return _route(settings, HabitDetailScreen(habit: habit));
     }
     return null;
   }

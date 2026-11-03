@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/habit_icons.dart';
 import 'package:rachas/features/habits/streak_logic.dart';
+import 'package:rachas/features/habits/widgets/habit_avatar.dart';
 import 'package:rachas/core/theme/app_theme.dart';
 
 class HabitCard extends StatelessWidget {
@@ -47,7 +47,7 @@ class HabitCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                _HabitIcon(habit: habit),
+                HabitAvatar(habit: habit),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(

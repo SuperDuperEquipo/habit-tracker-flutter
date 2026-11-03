@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:rachas/core/config/app_strings.dart';
-import 'package:rachas/core/theme/theme_data.dart';
+import 'package:rachas/core/theme/app_theme.dart';
 
 class HabitsSummary extends StatelessWidget {
   const HabitsSummary({
@@ -23,7 +23,7 @@ class HabitsSummary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final secondary = AppTheme.slateBlue; 
+    final secondary = AppTheme.slateBlue;
 
     return Container(
       padding: const EdgeInsets.all(14),
