@@ -1,34 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:rachas/features/habits/habit.dart';
+import 'package:rachas/core/validators.dart';
 import 'package:rachas/core/widgets/app_text_field.dart';
+import 'package:rachas/core/widgets/habit_color_picker.dart';
+import 'package:rachas/core/widgets/habit_icon_picker.dart';
+import 'package:rachas/core/widgets/habit_time_picker_field.dart';
+import 'package:rachas/features/habits/habit.dart';
 
-import '../../core/widgets/habit_icon_picker.dart';
-import '../../core/widgets/habit_color_picker.dart';
-import '../../core/widgets/habit_time_picker_field.dart';
-
+/// Campos compartidos de Crear y Editar hábito. Cada pantalla pone su propio
+/// botón de guardar y lee los valores con un `GlobalKey<HabitFormState>`.
 class HabitForm extends StatefulWidget {
-  final Habit? initialHabit;
-  final Function(Habit) onSubmit;
-  final String submitLabel;
+  const HabitForm({super.key, this.initialHabit});
 
-  const HabitForm({
-    super.key,
-    this.initialHabit,
-    required this.onSubmit,
-    required this.submitLabel,
-  });
+  final Habit? initialHabit;
 
   @override
-  HabitFormState createState() => HabitFormState(); // Quitamos el guion bajo
+  HabitFormState createState() => HabitFormState();
 }
 
 class HabitFormState extends State<HabitForm> {
-  // Quitamos el guion bajo
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-
-  final FocusNode _nameFocusNode = FocusNode();
-  final FocusNode _timeFocusNode = FocusNode();
+  late final TextEditingController _nameController;
 
   late String _selectedIcon;
   late int _selectedColorValue;
@@ -61,8 +52,6 @@ class HabitFormState extends State<HabitForm> {
   @override
   void dispose() {
     _nameController.dispose();
-    _nameFocusNode.dispose();
-    _timeFocusNode.dispose();
     super.dispose();
   }
 
@@ -72,7 +61,7 @@ class HabitFormState extends State<HabitForm> {
     return '$hour:$minute';
   }
 
-  // Getters públicos para que CreateHabitScreen lea los valores del usuario
+  // Valores que leen Crear y Editar al guardar.
   String get habitName => _nameController.text.trim();
   String get iconKey => _selectedIcon;
   int get colorValue => _selectedColorValue;
@@ -96,19 +85,14 @@ class HabitFormState extends State<HabitForm> {
             label: 'Nombre de tu hábito',
             placeholder: 'Ej. Leer 20 páginas',
             controller: _nameController,
-            maxLength: 40,
-            focusNode: _nameFocusNode,
-            textInputAction: TextInputAction.next,
+            maxLength: Validators.maxHabitNameLength,
+            textInputAction: TextInputAction.done,
             errorMessage: _serverErrorMessage,
-            onChanged: (value) {
-              if (_serverErrorMessage != null) {
-                setState(() => _serverErrorMessage = null);
-              }
-            },
-            onClear: () => _nameController.clear(),
-            onFieldSubmitted: (_) {
-              FocusScope.of(context).requestFocus(_timeFocusNode);
-            },
+            validator: Validators.habitName,
+            // setState también muestra u oculta el botón de borrar el texto.
+            onChanged: (_) => setState(() => _serverErrorMessage = null),
+            onClear: () => setState(_nameController.clear),
+            onFieldSubmitted: (_) => FocusScope.of(context).unfocus(),
           ),
           const SizedBox(height: 24),
           HabitIconPicker(

@@ -3,11 +3,15 @@ import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/errors/app_exception.dart';
 import 'package:rachas/core/theme/app_theme.dart';
-import 'package:rachas/core/widgets/app_dialogs.dart';
+import 'package:rachas/core/widgets/app_logo.dart';
 import 'package:rachas/features/habit_form/habit_form.dart';
+import 'package:rachas/features/habit_form/habit_form_card.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
+import 'package:rachas/features/notifications/notification_service.dart';
 
+/// Edita nombre, ícono, color y recordatorio con PUT. La racha, los comodines
+/// y el historial no cambian. Eliminar está en el detalle, como en Stitch.
 class EditHabitScreen extends StatefulWidget {
   const EditHabitScreen({super.key, required this.habit});
 
@@ -18,41 +22,27 @@ class EditHabitScreen extends StatefulWidget {
 }
 
 class _EditHabitScreenState extends State<EditHabitScreen> {
+  final _formKey = GlobalKey<HabitFormState>();
   bool _busy = false;
 
-  /// Guarda los cambios con PUT
-  Future<void> _save(Habit edited) async {
-    if (_busy) return;
-    final repository = context.read<HabitRepository>();
-    final updated = widget.habit.copyWith(
-      name: edited.name,
-      iconKey: edited.iconKey,
-      colorValue: edited.colorValue,
-      reminderTime: edited.reminderTime,
-      clearReminderTime: edited.reminderTime == null,
-    );
-    await _run(() => repository.update(updated));
-  }
+  Future<void> _save() async {
+    final form = _formKey.currentState;
+    if (_busy || form == null || !form.validate()) return;
 
-  Future<void> _delete() async {
+    FocusScope.of(context).unfocus();
     final repository = context.read<HabitRepository>();
-    final confirmed = await AppDialogs.showConfirmDialog(
-      context: context,
-      title: AppStrings.deleteDialogTitle,
-      message: AppStrings.deleteDialogBody(widget.habit.name),
-      confirmLabel: AppStrings.delete,
-      cancelLabel: AppStrings.cancel,
-      icon: Icons.delete_outline,
+    final notifications = context.read<NotificationService?>();
+    final edited = widget.habit.copyWith(
+      name: form.habitName,
+      iconKey: form.iconKey,
+      colorValue: form.colorValue,
+      reminderTime: form.reminderTime,
     );
-    if (confirmed != true || !mounted) return;
-    await _run(() => repository.delete(widget.habit.id));
-  }
 
-  /// (Mis hábitos recarga la lista al volver). Si falla, muestra el error.
-  Future<void> _run(Future<Object?> Function() action) async {
     setState(() => _busy = true);
     try {
-      await action();
+      final saved = await repository.update(edited);
+      await notifications?.schedule(saved);
       if (!mounted) return;
       Navigator.pop(context, true);
     } on AppException catch (e) {
@@ -73,33 +63,32 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(AppStrings.editHabitTitle)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _StreakNotice(),
-            const SizedBox(height: 20),
-            HabitForm(
-              initialHabit: widget.habit,
-              submitLabel: _busy
-                  ? AppStrings.savingChanges
-                  : AppStrings.saveChanges,
-              onSubmit: _save,
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: TextButton.icon(
-                onPressed: _busy ? null : _delete,
-                icon: const Icon(Icons.delete_outline),
-                label: const Text(AppStrings.deleteHabit),
-                style: TextButton.styleFrom(foregroundColor: AppTheme.darkPink),
+      appBar: AppBar(title: const AppBarTitle(AppStrings.editHabitTitle)),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: HabitFormCard(
+            children: [
+              const HabitFormHeader(
+                icon: Icons.edit_outlined,
+                title: AppStrings.editHabitTitle,
+                subtitle: AppStrings.editHabitSubtitle,
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              const _StreakNotice(),
+              const SizedBox(height: 20),
+              HabitForm(key: _formKey, initialHabit: widget.habit),
+              const SizedBox(height: 24),
+              const HabitTipCard(),
+              const SizedBox(height: 24),
+              HabitFormActions(
+                label: AppStrings.saveChanges,
+                busyLabel: AppStrings.savingChanges,
+                busy: _busy,
+                onSave: _save,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -112,21 +101,16 @@ class _StreakNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.palePink,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.azalea),
+        color: AppTheme.skyBlue.withValues(alpha: 0.35),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.skyBlue),
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.local_fire_department,
-            size: 20,
-            color: AppTheme.darkPink,
-          ),
-          const SizedBox(width: 8),
+          const Icon(Icons.verified_outlined, size: 20, color: AppTheme.navy),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
               AppStrings.editStreakNotice,
