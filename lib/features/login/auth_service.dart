@@ -48,6 +48,26 @@ class AuthService {
     await _updateDisplayName(data['idToken'] as String, cleanName);
   }
 
+  /// Pide a Firebase que envíe el correo para restablecer la contraseña.
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _dio.post<dynamic>(
+        ApiEndpoints.sendOobCode,
+        queryParameters: {'key': FirebaseConfig.apiKey},
+        data: {'requestType': 'PASSWORD_RESET', 'email': email.trim()},
+      );
+    } on DioException catch (e) {
+      if (_isEmailNotFound(e)) {
+        throw const AppException(
+          AppStrings.emailNotRegistered,
+          type: AppErrorType.invalidData,
+          statusCode: 400,
+        );
+      }
+      throw ErrorHandler.fromDio(e);
+    }
+  }
+
   Future<String?> readDisplayName() => _tokenStorage.readDisplayName();
 
   /// Pide un idToken nuevo con el refreshToken guardado y lo devuelve.
@@ -126,6 +146,15 @@ class AuthService {
     } on DioException {
       // Se ignora a propósito: no vale la pena mostrar un error por esto.
     }
+  }
+
+  // Firebase manda {"error": {"message": "EMAIL_NOT_FOUND"}} en un 400.
+  bool _isEmailNotFound(DioException e) {
+    final data = e.response?.data;
+    if (data is! Map) return false;
+    final error = data['error'];
+    final message = error is Map ? error['message'] : null;
+    return message is String && message.startsWith('EMAIL_NOT_FOUND');
   }
 
   Map<String, dynamic> _body(Response<Map<String, dynamic>> response) {

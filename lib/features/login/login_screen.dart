@@ -14,7 +14,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // La llave del formulario vive en el State, nunca dentro de build().
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -56,14 +55,8 @@ class _LoginScreenState extends State<LoginScreen> {
     });
   }
 
-  void _showUnavailable() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text(AppStrings.featureUnavailable)),
-    );
-  }
-
   Future<void> _submit() async {
-    if (_isLoading) return; // evita enviar dos veces
+    if (_isLoading) return;
     FocusScope.of(context).unfocus();
     if (!(_formKey.currentState?.validate() ?? false)) return;
 
@@ -108,7 +101,6 @@ class _LoginScreenState extends State<LoginScreen> {
       labelText: label,
       suffixIcon: suffixIcon,
       border: const OutlineInputBorder(),
-      // Borde de error cuando las credenciales son incorrectas.
       enabledBorder: _hasCredentialsError ? errorBorder : null,
       focusedBorder: _hasCredentialsError ? errorBorder : null,
     );
@@ -193,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _submit(),
                         onChanged: (_) => _clearError(),
-                        // Validación cruzada: compara con la contraseña.
                         validator: (value) => Validators.confirmPassword(
                           value,
                           _passwordController.text,
@@ -217,7 +208,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: TextButton(
-                          onPressed: _showUnavailable,
+                          onPressed: () => Navigator.pushNamed(
+                            context,
+                            AppRoutes.forgotPassword,
+                          ),
                           child: const Text(AppStrings.forgotPassword),
                         ),
                       ),
@@ -270,7 +264,6 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-// Logo temporal: se reemplaza por el de Stitch cuando lo tengamos.
 class _LogoHeader extends StatelessWidget {
   const _LogoHeader();
 

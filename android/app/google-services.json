@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "912306090697",
+    "firebase_url": "https://rachas-6371c-default-rtdb.firebaseio.com",
+    "project_id": "rachas-6371c",
+    "storage_bucket": "rachas-6371c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:912306090697:android:865386e72ae60b2adfd318",
+        "android_client_info": {
+          "package_name": "com.rachas.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrMVU8L5Ag5Tcis3NqU2h77dvVp0XvHic"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
