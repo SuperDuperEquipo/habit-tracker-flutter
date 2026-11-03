@@ -48,6 +48,19 @@ class AuthService {
     await _updateDisplayName(data['idToken'] as String, cleanName);
   }
 
+  /// Pide a Firebase que envíe el correo para restablecer la contraseña.
+  Future<void> sendPasswordReset(String email) async {
+    try {
+      await _dio.post<dynamic>(
+        ApiEndpoints.sendOobCode,
+        queryParameters: {'key': FirebaseConfig.apiKey},
+        data: {'requestType': 'PASSWORD_RESET', 'email': email.trim()},
+      );
+    } on DioException catch (e) {
+      throw ErrorHandler.fromDio(e);
+    }
+  }
+
   Future<String?> readDisplayName() => _tokenStorage.readDisplayName();
 
   /// Pide un idToken nuevo con el refreshToken guardado y lo devuelve.
