@@ -55,7 +55,9 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.text(AppStrings.featureUnavailable), findsOneWidget);
+    // Sin nombre guardado, el perfil muestra el título genérico.
+    expect(find.text(AppStrings.profileDefaultTitle), findsOneWidget);
+    expect(find.text(AppStrings.signOut), findsOneWidget);
   });
 
   testWidgets('con sesión guardada abre directo en Mis hábitos', (
