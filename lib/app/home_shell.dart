@@ -1,13 +1,14 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
 import 'package:rachas/core/config/app_strings.dart';
 import 'package:rachas/core/theme/app_theme.dart';
 import 'package:rachas/core/widgets/app_logo.dart';
+import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
 import 'package:rachas/features/login/auth_service.dart';
 import 'package:rachas/features/notifications/notification_service.dart';
+import 'package:rachas/features/statistics/statistics_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -47,6 +48,11 @@ class _HomeShellState extends State<HomeShell> {
               icon: Icon(Icons.yard_outlined),
               selectedIcon: Icon(Icons.yard),
               label: AppStrings.navHabits,
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart),
+              label: AppStrings.navStats,
             ),
             NavigationDestination(
               icon: Icon(Icons.account_circle_outlined),
