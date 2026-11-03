@@ -162,7 +162,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         : const Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(AppStrings.sendResetLink),
+                              Flexible(
+                                child: Text(
+                                  AppStrings.sendResetLink,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
                               SizedBox(width: 8),
                               Icon(Icons.arrow_forward, size: 18),
                             ],
