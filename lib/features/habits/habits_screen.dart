@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rachas/app/app_routes.dart';
@@ -7,13 +8,11 @@ import 'package:rachas/core/state/view_state.dart';
 import 'package:rachas/core/theme/theme_data.dart';
 import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habits/habit.dart';
-import 'package:rachas/features/habits/habit_repository.dart';
 import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/widgets/empty_state.dart';
 import 'package:rachas/features/habits/widgets/habit_card.dart';
-import 'package:rachas/features/habits/widgets/offline_state.dart';
 import 'package:rachas/features/habits/widgets/habits_summary.dart';
-import 'package:rachas/features/login/token_storage.dart';
+import 'package:rachas/features/habits/widgets/offline_state.dart';
 
 class HabitsScreen extends StatelessWidget {
   const HabitsScreen({super.key, this.userName});
@@ -23,13 +22,8 @@ class HabitsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) =>
-          HabitsProvider(repository: context.read<HabitRepository>(),
-          readUserName: TokenStorage().readDisplayName,
-        )..loadUserName(),
-      child: _HabitsView(userName: userName),
-    );
+    // Utiliza el HabitsProvider compartido desde app.dart.
+    return _HabitsView(userName: userName);
   }
 }
 
@@ -48,16 +42,26 @@ class _HabitsViewState extends State<_HabitsView> {
   @override
   void initState() {
     super.initState();
-    _loadFuture = context.read<HabitsProvider>().load();
+
+    final provider = context.read<HabitsProvider>();
+
+    // Carga los datos del usuario y sus hábitos desde el proveedor compartido.
+    provider.loadUserName();
+    _loadFuture = provider.load();
   }
 
   void _retry() {
-    setState(() => _loadFuture = context.read<HabitsProvider>().load());
+    setState(() {
+      _loadFuture = context.read<HabitsProvider>().load();
+    });
   }
 
   Future<void> _openCreate() async {
     await Navigator.pushNamed(context, AppRoutes.createHabit);
-    if (mounted) await context.read<HabitsProvider>().refresh();
+
+    if (mounted) {
+      await context.read<HabitsProvider>().refresh();
+    }
   }
 
   Future<void> _openEdit(Habit habit) async {
@@ -66,7 +70,10 @@ class _HabitsViewState extends State<_HabitsView> {
       AppRoutes.editHabit,
       arguments: habit,
     );
-    if (mounted) await context.read<HabitsProvider>().refresh();
+
+    if (mounted) {
+      await context.read<HabitsProvider>().refresh();
+    }
   }
 
   Future<void> _toggle(Habit habit) async {
@@ -83,13 +90,16 @@ class _HabitsViewState extends State<_HabitsView> {
       cancelLabel: AppStrings.cancel,
       icon: Icons.shield,
     );
+
     if (confirmed != true || !mounted) return;
+
     final error = await context.read<HabitsProvider>().useJoker(habit.id);
     _showError(error);
   }
 
   void _showError(AppException? error) {
     if (error == null || !mounted) return;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(error.message)));
@@ -102,14 +112,17 @@ class _HabitsViewState extends State<_HabitsView> {
     if (snapshot.connectionState != ConnectionState.done) {
       return const ViewLoading();
     }
+
     if (snapshot.hasError) {
       final error = snapshot.error;
+
       return ViewError(
         error is AppException
             ? error
             : const AppException(AppStrings.unexpectedError),
       );
     }
+
     return habits.isEmpty ? const ViewEmpty() : ViewData(habits);
   }
 
@@ -125,34 +138,36 @@ class _HabitsViewState extends State<_HabitsView> {
 
         final content = switch (state) {
           ViewLoading() => <Widget>[
-            const Padding(
-              padding: EdgeInsets.only(top: 80),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-          ],
-          ViewEmpty() => <Widget>[EmptyState(onCreate: _openCreate)],
-          ViewError(:final error) => <Widget>[
-            OfflineState(error: error, onRetry: _retry),
-          ],
-          ViewData(:final data) => <Widget>[
-            HabitsSummary(
-              completed: provider.completedToday,
-              total: provider.total,
-            ),
-            const SizedBox(height: 16),
-            for (final habit in data)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: HabitCard(
-                  key: ValueKey(habit.id),
-                  habit: habit,
-                  today: provider.today,
-                  onToggle: () => _toggle(habit),
-                  onUseJoker: () => _useJoker(habit),
-                  onOpen: () => _openEdit(habit),
-                ),
+              const Padding(
+                padding: EdgeInsets.only(top: 80),
+                child: Center(child: CircularProgressIndicator()),
               ),
-          ],
+            ],
+          ViewEmpty() => <Widget>[
+              EmptyState(onCreate: _openCreate),
+            ],
+          ViewError(:final error) => <Widget>[
+              OfflineState(error: error, onRetry: _retry),
+            ],
+          ViewData(:final data) => <Widget>[
+              HabitsSummary(
+                completed: provider.completedToday,
+                total: provider.total,
+              ),
+              const SizedBox(height: 16),
+              for (final habit in data)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: HabitCard(
+                    key: ValueKey(habit.id),
+                    habit: habit,
+                    today: provider.today,
+                    onToggle: () => _toggle(habit),
+                    onUseJoker: () => _useJoker(habit),
+                    onOpen: () => _openEdit(habit),
+                  ),
+                ),
+            ],
         };
 
         return Scaffold(

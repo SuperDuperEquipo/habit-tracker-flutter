@@ -51,6 +51,33 @@ class HabitsProvider extends ChangeNotifier {
     }
   }
 
+  /// Guarda un hábito editado y actualiza la lista.
+  Future<AppException?> update(Habit habit) async {
+    try {
+      final saved = await _repository.update(habit);
+      _replace(saved.id, saved);
+      return null;
+    } on AppException catch (e) {
+      return e;
+    } on Object {
+      return const AppException(AppStrings.unexpectedError);
+    }
+  }
+
+  /// Elimina un hábito. Si falla, devuelve el error y no toca la lista.
+  Future<AppException?> remove(String id) async {
+    try {
+      await _repository.delete(id);
+      _habits = _habits.where((h) => h.id != id).toList();
+      _notify();
+      return null;
+    } on AppException catch (e) {
+      return e;
+    } on Object {
+      return const AppException(AppStrings.unexpectedError);
+    }
+  }
+
   /// Carga la lista. Lanza [AppException] si falla.
   Future<void> load() async {
     _habits = await fetchHabits(_repository);

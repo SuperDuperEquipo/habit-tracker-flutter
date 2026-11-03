@@ -7,6 +7,7 @@ import 'package:rachas/core/widgets/app_dialogs.dart';
 import 'package:rachas/features/habit_form/habit_form.dart';
 import 'package:rachas/features/habits/habit.dart';
 import 'package:rachas/features/habits/habit_repository.dart';
+import 'package:rachas/features/notifications/notification_service.dart';
 
 class EditHabitScreen extends StatefulWidget {
   const EditHabitScreen({super.key, required this.habit});
@@ -20,10 +21,13 @@ class EditHabitScreen extends StatefulWidget {
 class _EditHabitScreenState extends State<EditHabitScreen> {
   bool _busy = false;
 
-  /// Guarda los cambios con PUT
+  /// Guarda los cambios y actualiza el recordatorio.
   Future<void> _save(Habit edited) async {
     if (_busy) return;
+
     final repository = context.read<HabitRepository>();
+    final notifications = context.read<NotificationService>();
+
     final updated = widget.habit.copyWith(
       name: edited.name,
       iconKey: edited.iconKey,
@@ -31,11 +35,25 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
       reminderTime: edited.reminderTime,
       clearReminderTime: edited.reminderTime == null,
     );
-    await _run(() => repository.update(updated));
+
+    await _run(() async {
+      final savedHabit = await repository.update(updated);
+
+      // Un fallo del recordatorio no debe deshacer el hábito ya guardado.
+      try {
+        await notifications.schedule(savedHabit);
+      } on Object {
+        debugPrint('No se pudo actualizar el recordatorio del hábito.');
+      }
+
+      return savedHabit;
+    });
   }
 
+  /// Elimina el hábito después de confirmar y cancela su recordatorio.
   Future<void> _delete() async {
-    final repository = context.read<HabitRepository>();
+    if (_busy) return;
+
     final confirmed = await AppDialogs.showConfirmDialog(
       context: context,
       title: AppStrings.deleteDialogTitle,
@@ -44,18 +62,39 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
       cancelLabel: AppStrings.cancel,
       icon: Icons.delete_outline,
     );
+
     if (confirmed != true || !mounted) return;
-    await _run(() => repository.delete(widget.habit.id));
+
+    final repository = context.read<HabitRepository>();
+    final notifications = context.read<NotificationService>();
+
+    await _run(() async {
+      await repository.delete(widget.habit.id);
+
+      // La eliminación se conserva aunque falle la cancelación local.
+      try {
+        await notifications.cancel(widget.habit.id);
+      } on Object {
+        debugPrint('No se pudo cancelar el recordatorio del hábito.');
+      }
+
+      return null;
+    });
   }
-  /// (Mis hábitos recarga la lista al volver). Si falla, muestra el error.
+
   Future<void> _run(Future<Object?> Function() action) async {
+    if (_busy) return;
+
     setState(() => _busy = true);
+
     try {
       await action();
+
       if (!mounted) return;
+
       Navigator.pop(context, true);
-    } on AppException catch (e) {
-      _fail(e.message);
+    } on AppException catch (error) {
+      _fail(error.message);
     } on Object {
       _fail(AppStrings.unexpectedError);
     }
@@ -63,7 +102,9 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
 
   void _fail(String message) {
     if (!mounted) return;
+
     setState(() => _busy = false);
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(SnackBar(content: Text(message)));
@@ -95,9 +136,7 @@ class _EditHabitScreenState extends State<EditHabitScreen> {
                 onPressed: _busy ? null : _delete,
                 icon: const Icon(Icons.delete_outline),
                 label: const Text(AppStrings.deleteHabit),
-                style: TextButton.styleFrom(
-                  foregroundColor: AppTheme.darkPink,
-                ),
+                style: TextButton.styleFrom(foregroundColor: AppTheme.darkPink),
               ),
             ),
           ],

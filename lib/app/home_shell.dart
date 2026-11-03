@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rachas/core/config/app_strings.dart';
+import 'package:rachas/features/habits/habits_provider.dart';
 import 'package:rachas/features/habits/habits_screen.dart';
+import 'package:rachas/features/statistics/statistics_screen.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -17,16 +20,31 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [HabitsScreen(), _ProfileTab()],
+        children: [
+          const HabitsScreen(),
+          Consumer<HabitsProvider>(
+            builder: (context, provider, _) {
+              return StatisticsView(habits: provider.habits);
+            },
+          ),
+          const _ProfileTab(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (index) => setState(() => _index = index),
+        onDestinationSelected: (index) {
+          setState(() => _index = index);
+        },
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.yard_outlined),
             selectedIcon: Icon(Icons.yard),
             label: AppStrings.navHabits,
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart),
+            label: AppStrings.navStats,
           ),
           NavigationDestination(
             icon: Icon(Icons.account_circle_outlined),
