@@ -113,4 +113,15 @@ abstract final class AppStrings {
 
   static String markHabit(String name) => 'Marcar hábito $name';
   static String unmarkHabit(String name) => 'Desmarcar hábito $name';
+
+  // Editar y eliminar hábito
+  static const String editHabitTitle = 'Editar hábito';
+  static const String editStreakNotice = 'Tu racha se conserva al editar';
+  static const String saveChanges = 'Guardar cambios';
+  static const String savingChanges = 'Guardando cambios...';
+  static const String deleteHabit = 'Eliminar hábito';
+  static const String delete = 'Eliminar';
+  static const String deleteDialogTitle = '¿Eliminar este hábito?';
+  static String deleteDialogBody(String name) =>
+      'Se borrará "$name" con su racha e historial. Esta acción no se puede deshacer.';
 }
